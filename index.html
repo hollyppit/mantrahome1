@@ -72,8 +72,10 @@
     border-radius:50%;
   }
   .logo:has(img)::before { display: none; }
-  .logo img { max-height: 72px; width: auto; }
-  @media (max-width: 960px) { .logo img { max-height: 52px; } }
+  .logo img { max-height: 120px; width: auto; transition: transform .3s var(--ease-out); }
+  .logo:hover img { transform: scale(1.05) rotate(-2deg); }
+  @media (max-width: 960px) { .logo img { max-height: 80px; } }
+  @media (max-width: 600px) { .logo img { max-height: 60px; } }
   .icon-btn {
     width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
     border-radius:50%; border:1px solid transparent; transition:.2s;
