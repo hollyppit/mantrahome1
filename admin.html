@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MANTRA · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0d; --panel:#141416; --panel2:#1a1a1d; --line:#26262a;
+    --fg:#ededed; --muted:#8a8a92; --accent:#d94b2b; --ok:#22c55e;
+    --sans:'Noto Sans KR', sans-serif;
+    --mono:'JetBrains Mono', monospace;
+    --serif:'Instrument Serif', serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:14px; }
+  a{ color:inherit; } button{ font-family:inherit; cursor:pointer; }
+  input, textarea, select {
+    width:100%; padding:10px 12px; background:var(--panel2); border:1px solid var(--line);
+    color:var(--fg); border-radius:6px; font-family:inherit; font-size:13px;
+  }
+  input:focus, textarea:focus, select:focus { outline:0; border-color:#555; }
+  textarea { min-height: 80px; resize: vertical; line-height:1.5; }
+  label { display:block; font-family:var(--mono); font-size:10px; text-transform:uppercase;
+    letter-spacing:.15em; color:var(--muted); margin: 10px 0 6px; font-weight:500; }
+
+  .btn {
+    padding: 9px 16px; border:1px solid var(--line); background:var(--panel2); color:var(--fg);
+    border-radius:6px; font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    display:inline-flex; align-items:center; gap:6px; transition:.15s;
+  }
+  .btn:hover { border-color:#666; }
+  .btn-primary { background:#ededed; color:#000; border-color:#ededed; }
+  .btn-primary:hover { background:#fff; }
+  .btn-accent { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .btn-accent:hover { filter:brightness(1.1); }
+  .btn-ghost { background:transparent; }
+  .btn-danger { color:#ff8b85; border-color:#552; }
+  .btn-danger:hover { background:#3a1212; border-color:#d33; color:#fff; }
+
+  /* 로그인 */
+  .login-shell {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(ellipse at 30% 20%, #1a1a1d 0%, #0c0c0d 60%);
+  }
+  .login-box {
+    width:100%; max-width: 400px; background:var(--panel);
+    border:1px solid var(--line); border-radius:12px; padding: 36px 32px;
+  }
+  .brand-lg { font-family:var(--serif); font-style:italic; font-size:32px; line-height:1; margin-bottom:4px; }
+  .brand-lg::before { content:''; display:inline-block; width:10px; height:10px;
+    background:var(--accent); border-radius:50%; margin-right:10px; vertical-align:middle; }
+  .brand-sm { font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:.2em; text-transform:uppercase; margin-bottom:24px; }
+
+  /* 레이아웃 */
+  .shell { display:grid; grid-template-columns: 240px 1fr; min-height:100vh; }
+  .sidebar { background:#08080a; border-right:1px solid var(--line); padding:24px 16px; display:flex; flex-direction:column; gap:4px; }
+  .side-link {
+    padding: 10px 12px; border-radius:6px; font-size:13px; color:var(--muted);
+    display:flex; align-items:center; gap:10px; transition:.15s; text-decoration:none;
+  }
+  .side-link:hover { background:#131316; color:var(--fg); }
+  .side-link.active { background:#1e1e22; color:var(--fg); }
+  .side-link .dot { width:5px; height:5px; border-radius:50%; background:var(--accent); opacity:0; }
+  .side-link.active .dot { opacity:1; }
+  .side-spacer { flex:1; }
+  .side-foot { font-family:var(--mono); font-size:10px; color:var(--muted); padding:12px; border-top:1px solid var(--line); margin-top:8px; line-height:1.6; }
+  .side-foot a { color:var(--accent); }
+
+  main { padding: 28px 36px 80px; max-width: 1200px; }
+  h1 { font-family:var(--serif); font-style:italic; font-weight:400; margin:0 0 4px; font-size:32px; }
+  .sub { color:var(--muted); font-size:13px; margin-bottom:28px; font-family:var(--mono); letter-spacing:.05em; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px; margin-bottom:14px; }
+  .card h3 { margin:0 0 14px; font-family:var(--mono); font-weight:600; letter-spacing:.1em; font-size:11px; text-transform:uppercase; color:var(--muted); }
+
+  /* 행 */
+  .row {
+    display:grid; gap:12px; align-items:center;
+    background:var(--panel2); border:1px solid var(--line);
+    border-radius:8px; padding:10px 14px; margin-bottom:6px; font-size:13px;
+  }
+  .row.proj { grid-template-columns: 40px 60px 1fr 120px 100px 80px auto auto; }
+  .row.cat  { grid-template-columns: 40px 1fr 80px 60px auto auto; }
+  .row.svc  { grid-template-columns: 40px 40px 1fr 60px auto auto; }
+  .row.tl   { grid-template-columns: 40px 80px 1fr 60px auto auto; }
+  .row .handle { cursor:grab; color:var(--muted); font-family:var(--mono); font-size:12px; text-align:center; }
+  .row.dragging { opacity:.4; }
+  .row img { width:50px; height:40px; object-fit:cover; border-radius:4px; background:#333; }
+  .chip { display:inline-block; padding:2px 8px; border-radius:10px;
+    font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; }
+  .chip.on { background:#0f2a18; color:#4ade80; }
+  .chip.off { background:#2a0f0f; color:#f87171; }
+  .chip.feat { background:#2a1a0f; color:#fbbf24; }
+  .chip.cat { background:#1a1f2a; color:#8bbfff; }
+  .icon-action {
+    width:28px; height:28px; padding:0; display:inline-flex; align-items:center; justify-content:center;
+    background:transparent; border:1px solid transparent; border-radius:6px; color:var(--muted);
+  }
+  .icon-action:hover { border-color:var(--line); color:var(--fg); }
+  .icon-action svg { width:14px; height:14px; }
+
+  /* 모달 */
+  .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:100;
+    display:none; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto; }
+  .modal-bg.open { display:flex; }
+  .modal { background:var(--panel); border:1px solid var(--line);
+    border-radius:12px; padding:26px; width:100%; max-width:860px;
+    box-shadow:0 24px 60px rgba(0,0,0,.6); }
+  .modal h2 { margin:0 0 18px; font-family:var(--serif); font-style:italic; font-size:24px; font-weight:400; }
+  .modal-actions { display:flex; gap:8px; justify-content:flex-end;
+    margin-top:18px; padding-top:18px; border-top:1px solid var(--line); }
+
+  .thumb { width:100%; aspect-ratio:4/3; background:#1a1a1e center/cover no-repeat;
+    border-radius:6px; border:1px dashed var(--line); }
+  .hidden { display:none !important; }
+
+  /* 갤러리 에디터 */
+  .gallery-item {
+    display:grid; grid-template-columns: 80px 1fr 1fr auto;
+    gap:10px; align-items:center;
+    background:var(--bg); border:1px solid var(--line); border-radius:6px;
+    padding:8px; margin-bottom:6px;
+  }
+  .gallery-item img { width:80px; height:60px; object-fit:cover; border-radius:4px; background:#222; }
+  .gallery-item input { padding:7px 10px; font-size:12px; }
+
+  /* 토스트 */
+  #toast { position:fixed; bottom:20px; right:20px; background:#111; border:1px solid var(--line);
+    padding:12px 16px; border-radius:8px; font-size:13px; display:none; z-index:999;
+    font-family:var(--mono); letter-spacing:.05em; }
+  #toast.ok { border-color:var(--ok); color:var(--ok); }
+  #toast.err { border-color:var(--accent); color:#ff8b85; }
+
+  /* 대시보드 통계 */
+  .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+  .stat {
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:20px;
+  }
+  .stat .lbl { font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+  .stat .val { font-family:var(--serif); font-style:italic; font-size:36px; line-height:1; margin-top:8px; }
+  .stat .val em { color:var(--accent); font-style:italic; }
+
+  @media (max-width:860px) {
+    .shell { grid-template-columns:1fr; }
+    .sidebar { flex-direction:row; overflow-x:auto; padding:10px; border-right:0; border-bottom:1px solid var(--line); }
+    .side-foot, .side-spacer { display:none; }
+    .side-link { white-space:nowrap; }
+    main { padding:20px 16px 60px; }
+    .grid-2, .grid-3, .grid-4, .stats { grid-template-columns:1fr 1fr; }
+    .row.proj { grid-template-columns: 40px 1fr auto; }
+    .row.proj > :nth-child(n+3):not(:last-child):not(:nth-last-child(2)) { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="loginShell" class="login-shell">
+  <div class="login-box">
+    <div class="brand-lg">Mantra</div>
+    <div class="brand-sm">STUDIO · ADMIN</div>
+    <p class="sub" style="margin-bottom:24px;">포트폴리오 사이트 관리</p>
+    <label>이메일</label>
+    <input type="email" id="loginEmail" placeholder="admin@example.com">
+    <label>비밀번호</label>
+    <input type="password" id="loginPassword" placeholder="••••••••">
+    <div style="margin-top:16px;">
+      <button class="btn btn-primary" id="btnLogin" style="width:100%;">로그인</button>
+    </div>
+    <p style="margin-top:20px; font-size:11px; color:var(--muted); line-height:1.7; font-family:var(--mono);">
+      최초 설정: Supabase → Authentication → Users 에서<br>
+      관리자 계정 생성 (Auto Confirm 체크)
+    </p>
+    <p style="margin-top:12px; font-size:11px; font-family:var(--mono);">
+      <a href="index.html" style="color:var(--muted);">← 사이트로</a>
+    </p>
+  </div>
+</div>
+
+<!-- 메인 -->
+<div id="adminShell" class="shell hidden">
+  <aside class="sidebar">
+    <div style="padding:12px; margin-bottom:12px;">
+      <div class="brand-lg" style="font-size:22px;">Mantra</div>
+      <div class="brand-sm">ADMIN</div>
+    </div>
+    <a href="#" class="side-link active" data-tab="dashboard"><span class="dot"></span>대시보드</a>
+    <a href="#" class="side-link" data-tab="settings"><span class="dot"></span>사이트 설정</a>
+    <a href="#" class="side-link" data-tab="categories"><span class="dot"></span>카테고리</a>
+    <a href="#" class="side-link" data-tab="projects"><span class="dot"></span>프로젝트</a>
+    <a href="#" class="side-link" data-tab="services"><span class="dot"></span>서비스 블록</a>
+    <a href="#" class="side-link" data-tab="timeline"><span class="dot"></span>타임라인</a>
+    <a href="#" class="side-link" data-tab="inquiries"><span class="dot"></span>문의 게시판 <span id="inqBadge" style="margin-left:auto; background:var(--accent); color:#fff; font-size:9px; padding:1px 6px; border-radius:8px; display:none;"></span></a>
+    <a href="#" class="side-link" data-tab="export"><span class="dot"></span>백업/복원</a>
+    <div class="side-spacer"></div>
+    <div class="side-foot">
+      <div id="userEmail">—</div>
+      <div style="margin-top:8px; display:flex; gap:6px;">
+        <a href="index.html" target="_blank">사이트 보기</a>
+        <span style="color:var(--line)">·</span>
+        <a href="#" id="btnLogout" style="color:var(--accent);">로그아웃</a>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+
+    <!-- DASHBOARD -->
+    <div class="tab" data-tab="dashboard">
+      <h1>Dashboard</h1>
+      <p class="sub">한눈에 보는 사이트 상태</p>
+      <div class="stats" id="statsGrid"></div>
+      <div class="card">
+        <h3>빠른 링크</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-accent" data-go="projects">＋ 프로젝트 추가</button>
+          <button class="btn" data-go="categories">카테고리 관리</button>
+          <button class="btn" data-go="settings">사이트 설정</button>
+          <a class="btn" href="index.html" target="_blank">사이트 미리보기 ↗</a>
+        </div>
+      </div>
+      <div class="card">
+        <h3>팁</h3>
+        <div style="font-size:13px; line-height:1.8; color:var(--muted);">
+          • 프로젝트는 <b style="color:var(--fg)">is_featured</b> 체크 시 포트폴리오 그리드에서 더 크게 노출됩니다.<br>
+          • 상세 모달의 갤러리는 이미지를 여러 장 쌓을 수 있습니다 (프로젝트 편집 하단).<br>
+          • 카테고리는 <code style="color:var(--accent)">all</code> 슬러그가 있으면 "전체" 필터로 사용됩니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab hidden" data-tab="settings">
+      <h1>Site settings</h1>
+      <p class="sub">로고, 히어로, 어바웃, 연락처, 색상</p>
+
+      <div class="card">
+        <h3>Brand 🇰🇷</h3>
+        <div class="grid-2">
+          <div><label>스튜디오명</label><input id="f_studio_name"></div>
+          <div><label>태그라인 (헤더 부분)</label><input id="f_studio_tagline"></div>
+        </div>
+        <label>짧은 설명 (푸터용)</label>
+        <input id="f_studio_description">
+        <div class="grid-2" style="margin-top:6px;">
+          <div><label>로고 이미지 URL</label><input id="f_logo_url" placeholder="https://..."></div>
+          <div><label>파비콘 URL</label><input id="f_favicon_url"></div>
+        </div>
+        <label>SEO 설명</label>
+        <textarea id="f_seo_description"></textarea>
+      </div>
+
+      <div class="card" style="border-color:#3a3a40;">
+        <h3>Brand 🇬🇧 (English · 비워두면 한글로 폴백)</h3>
+        <div class="grid-2">
+          <div><label>Studio Name (EN)</label><input id="f_studio_name_en"></div>
+          <div><label>Tagline (EN)</label><input id="f_studio_tagline_en"></div>
+        </div>
+        <label>Short description (EN)</label>
+        <input id="f_studio_description_en">
+        <label>SEO description (EN)</label>
+        <textarea id="f_seo_description_en"></textarea>
+      </div>
+
+      <div class="card">
+        <h3>Hero Section 🇰🇷</h3>
+        <label>헤드라인 (첫 줄은 일반, 둘째 줄부터 자동으로 이탤릭·강조)</label>
+        <textarea id="f_hero_headline" placeholder="We make bold&#10;stories & tools."></textarea>
+        <label>서브라인</label>
+        <textarea id="f_hero_subline"></textarea>
+        <label>히어로 이미지 URL</label>
+        <input id="f_hero_image_url">
+      </div>
+
+      <div class="card" style="border-color:#3a3a40;">
+        <h3>Hero Section 🇬🇧 (English)</h3>
+        <label>Headline (EN)</label>
+        <textarea id="f_hero_headline_en" placeholder="We make bold&#10;stories & tools."></textarea>
+        <label>Subline (EN)</label>
+        <textarea id="f_hero_subline_en"></textarea>
+      </div>
+
+      <div class="card">
+        <h3>About Section 🇰🇷</h3>
+        <div class="grid-2">
+          <div>
+            <label>어바웃 이미지 URL</label><input id="f_about_image_url">
+            <div class="thumb" id="aboutImagePreview" style="margin-top:8px;"></div>
+          </div>
+          <div>
+            <label>어바웃 본문 (빈 줄로 문단 구분)</label>
+            <textarea id="f_about_body" style="min-height:180px;"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="border-color:#3a3a40;">
+        <h3>About Section 🇬🇧 (English)</h3>
+        <label>About body (EN)</label>
+        <textarea id="f_about_body_en" style="min-height:140px;"></textarea>
+      </div>
+
+      <div class="card">
+        <h3>Contact & Social</h3>
+        <div class="grid-2">
+          <div><label>이메일</label><input id="f_contact_email"></div>
+          <div><label>위치 (KR)</label><input id="f_contact_location"></div>
+        </div>
+        <div class="grid-2" style="margin-top:6px;">
+          <div></div>
+          <div><label>위치 (EN)</label><input id="f_contact_location_en" placeholder="Jeonju, South Korea"></div>
+        </div>
+        <div class="grid-4" style="margin-top:6px;">
+          <div><label>Instagram</label><input id="f_social_instagram"></div>
+          <div><label>YouTube</label><input id="f_social_youtube"></div>
+          <div><label>Twitter/X</label><input id="f_social_twitter"></div>
+          <div><label>GitHub</label><input id="f_social_github"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Footer & Theme</h3>
+        <div class="grid-2">
+          <div><label>푸터 카피라이트 (KR)</label><input id="f_footer_copyright"></div>
+          <div><label>Footer copyright (EN)</label><input id="f_footer_copyright_en"></div>
+        </div>
+        <div class="grid-3" style="margin-top:6px;">
+          <div><label>배경색 (bg)</label><input id="f_theme_bg" placeholder="#f5f3ee"></div>
+          <div><label>전경색 (fg)</label><input id="f_theme_fg" placeholder="#111111"></div>
+          <div><label>포인트 (accent)</label><input id="f_theme_accent" placeholder="#d94b2b"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button class="btn" id="btnReloadSettings">다시 불러오기</button>
+        <button class="btn btn-primary" id="btnSaveSettings">저장</button>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="tab hidden" data-tab="categories">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <h1>Categories</h1>
+          <p class="sub">포트폴리오 필터로 사용됩니다 · 슬러그 "all"은 전체 필터</p>
+        </div>
+        <button class="btn btn-accent" id="btnNewCat">＋ 카테고리</button>
+      </div>
+      <div id="catList" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="tab hidden" data-tab="projects">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <h1>Projects</h1>
+          <p class="sub">포트폴리오 본편 · 드래그로 순서 변경</p>
+        </div>
+        <button class="btn btn-accent" id="btnNewProject">＋ 프로젝트</button>
+      </div>
+      <div id="projectList" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="tab hidden" data-tab="services">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <h1>Services</h1>
+          <p class="sub">"무엇을 하는가" 섹션에 표시되는 서비스 카드</p>
+        </div>
+        <button class="btn btn-accent" id="btnNewService">＋ 서비스</button>
+      </div>
+      <div id="serviceList" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="tab hidden" data-tab="timeline">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <h1>Timeline</h1>
+          <p class="sub">스튜디오 연혁</p>
+        </div>
+        <button class="btn btn-accent" id="btnNewTimeline">＋ 항목</button>
+      </div>
+      <div id="timelineList" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- INQUIRIES -->
+    <div class="tab hidden" data-tab="inquiries">
+      <h1>Inquiries</h1>
+      <p class="sub">방문자가 비밀글로 남긴 문의 · 별도 관리자 비밀번호 필요</p>
+
+      <div class="card" id="inqAuthCard">
+        <h3>관리자 비밀번호</h3>
+        <p style="font-size:13px; color:var(--muted); margin:0 0 12px;">
+          <code style="color:var(--accent)">inquiries-schema.sql</code> 실행 후 기본 비밀번호는 <b style="color:var(--fg)">mantra2025</b> 입니다.
+          첫 로그인 후 아래 "비밀번호 변경"으로 즉시 바꾸세요.
+        </p>
+        <div class="grid-2">
+          <div><label>관리자 비밀번호</label><input id="inqPw" type="password"></div>
+          <div style="display:flex; align-items:flex-end;"><button class="btn btn-primary" id="btnInqLogin" style="width:100%;">불러오기</button></div>
+        </div>
+      </div>
+
+      <div class="card hidden" id="inqMainCard">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+          <h3 style="margin:0;">받은 문의 <span id="inqCount" style="color:var(--muted)">(0)</span></h3>
+          <div style="display:flex; gap:6px;">
+            <button class="btn" id="btnInqRefresh">새로고침</button>
+            <button class="btn" id="btnInqChangePw">비밀번호 변경</button>
+            <button class="btn btn-danger" id="btnInqLogout">로그아웃</button>
+          </div>
+        </div>
+        <div id="inqList"></div>
+      </div>
+    </div>
+
+    <!-- EXPORT -->
+    <div class="tab hidden" data-tab="export">
+      <h1>Backup / Restore</h1>
+      <p class="sub">JSON으로 내보내고 가져오기</p>
+      <div class="card">
+        <h3>Export</h3>
+        <p style="font-size:13px; color:var(--muted); margin:0 0 14px;">설정·카테고리·프로젝트·서비스·타임라인 전부를 하나의 JSON 파일로 다운로드합니다.</p>
+        <button class="btn btn-primary" id="btnExport">backup.json 다운로드</button>
+      </div>
+      <div class="card">
+        <h3>Import (덮어쓰기)</h3>
+        <p style="font-size:13px; color:var(--muted); margin:0 0 14px;">⚠️ 현재 데이터를 덮어씁니다. 먼저 Export로 백업하세요.</p>
+        <input type="file" id="importFile" accept="application/json">
+        <div style="margin-top:10px;"><button class="btn btn-danger" id="btnImport">가져오기 실행</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============== 프로젝트 모달 ============== -->
+<div class="modal-bg" id="projectModal">
+  <div class="modal">
+    <h2 id="projectModalTitle">프로젝트 편집</h2>
+
+    <div style="background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px;">
+      <div style="font-family:var(--mono); font-size:10px; color:var(--accent); letter-spacing:.15em; margin-bottom:10px;">🇰🇷 KOREAN (DEFAULT)</div>
+      <div class="grid-2">
+        <div><label>제목</label><input id="p_title"></div>
+        <div><label>부제 (한 줄 설명)</label><input id="p_subtitle"></div>
+      </div>
+      <label>설명 (상세 모달 본문)</label>
+      <textarea id="p_description" style="min-height:100px;"></textarea>
+    </div>
+
+    <div style="background:var(--panel2); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px;">
+      <div style="font-family:var(--mono); font-size:10px; color:#8bbfff; letter-spacing:.15em; margin-bottom:10px;">🇬🇧 ENGLISH (FALLS BACK TO KR IF EMPTY)</div>
+      <div class="grid-2">
+        <div><label>Title (EN)</label><input id="p_title_en"></div>
+        <div><label>Subtitle (EN)</label><input id="p_subtitle_en"></div>
+      </div>
+      <label>Description (EN)</label>
+      <textarea id="p_description_en" style="min-height:100px;"></textarea>
+    </div>
+
+    <div class="grid-4">
+      <div><label>카테고리</label><select id="p_category_id"></select></div>
+      <div><label>연도</label><input id="p_year" placeholder="2025"></div>
+      <div><label>클라이언트 (KR)</label><input id="p_client"></div>
+      <div><label>Client (EN)</label><input id="p_client_en"></div>
+    </div>
+    <div class="grid-4">
+      <div><label>역할 (KR)</label><input id="p_role"></div>
+      <div><label>Role (EN)</label><input id="p_role_en"></div>
+      <div><label>기술/도구 (KR)</label><input id="p_tech"></div>
+      <div><label>Tech (EN)</label><input id="p_tech_en"></div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label>썸네일 이미지 URL</label><input id="p_thumbnail_url">
+        <div class="thumb" id="pThumbPreview" style="margin-top:8px;"></div>
+      </div>
+      <div>
+        <div class="grid-2">
+          <div><label>링크 라벨 (KR)</label><input id="p_link_label" placeholder="바로가기"></div>
+          <div><label>Link label (EN)</label><input id="p_link_label_en" placeholder="Visit"></div>
+        </div>
+        <label>외부 링크 URL</label><input id="p_link_url">
+        <div class="grid-2" style="margin-top:6px;">
+          <div>
+            <label>노출</label>
+            <select id="p_is_visible"><option value="true">노출</option><option value="false">숨김</option></select>
+          </div>
+          <div>
+            <label>피처드 (큰 카드)</label>
+            <select id="p_is_featured"><option value="false">보통</option><option value="true">피처드</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <label style="margin-top:18px;">상세 모달 갤러리</label>
+    <div id="galleryEditor"></div>
+    <button class="btn" id="btnAddGalleryItem" style="margin-top:6px;">＋ 이미지 추가</button>
+
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btnDeleteProject">삭제</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" id="btnCloseProject">취소</button>
+      <button class="btn btn-primary" id="btnSaveProject">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 카테고리 모달 -->
+<div class="modal-bg" id="catModal">
+  <div class="modal" style="max-width:500px;">
+    <h2>카테고리</h2>
+    <label>슬러그 (영문소문자·하이픈, all 은 전체 필터)</label>
+    <input id="c_slug">
+    <div class="grid-2">
+      <div><label>라벨 KR (표시명)</label><input id="c_label"></div>
+      <div><label>라벨 EN (Label)</label><input id="c_label_en"></div>
+    </div>
+    <div class="grid-2">
+      <div><label>설명 KR (선택)</label><input id="c_description"></div>
+      <div><label>설명 EN (optional)</label><input id="c_description_en"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btnDeleteCat">삭제</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" id="btnCloseCat">취소</button>
+      <button class="btn btn-primary" id="btnSaveCat">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 서비스 모달 -->
+<div class="modal-bg" id="svcModal">
+  <div class="modal" style="max-width:500px;">
+    <h2>서비스</h2>
+    <div class="grid-2">
+      <div><label>아이콘 (짧은 글자·이모지)</label><input id="s_icon" maxlength="6"></div>
+      <div><label>노출</label>
+        <select id="s_is_visible"><option value="true">노출</option><option value="false">숨김</option></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div><label>제목 (KR)</label><input id="s_title"></div>
+      <div><label>Title (EN)</label><input id="s_title_en"></div>
+    </div>
+    <label>설명 (KR)</label><textarea id="s_description"></textarea>
+    <label>Description (EN)</label><textarea id="s_description_en"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btnDeleteSvc">삭제</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" id="btnCloseSvc">취소</button>
+      <button class="btn btn-primary" id="btnSaveSvc">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 문의 상세 모달 -->
+<div class="modal-bg" id="inqModal">
+  <div class="modal" style="max-width:640px;">
+    <h2>문의 상세</h2>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; font-family:var(--mono); font-size:11px; color:var(--muted);">
+      <span>#<span id="inqDetId">—</span></span>
+      <span>·</span>
+      <span id="inqDetCreated">—</span>
+      <span>·</span>
+      <span id="inqDetStatus" class="chip on">미확인</span>
+    </div>
+    <label>제목</label>
+    <input id="inqDetTitle" readonly>
+    <label>내용</label>
+    <textarea id="inqDetBody" style="min-height:180px;" readonly></textarea>
+    <label>연락처</label>
+    <input id="inqDetContact" readonly>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btnInqDelete">삭제</button>
+      <div style="flex:1"></div>
+      <button class="btn" id="btnInqToggleRead">읽음 처리</button>
+      <button class="btn btn-ghost" id="btnInqClose">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 타임라인 모달 -->
+<div class="modal-bg" id="tlModal">
+  <div class="modal" style="max-width:500px;">
+    <h2>타임라인 항목</h2>
+    <div class="grid-2">
+      <div><label>연도</label><input id="t_year" placeholder="2024"></div>
+      <div><label>노출</label>
+        <select id="t_is_visible"><option value="true">노출</option><option value="false">숨김</option></select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div><label>제목 (KR)</label><input id="t_title"></div>
+      <div><label>Title (EN)</label><input id="t_title_en"></div>
+    </div>
+    <label>설명 (KR)</label><textarea id="t_description"></textarea>
+    <label>Description (EN)</label><textarea id="t_description_en"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btnDeleteTl">삭제</button>
+      <div style="flex:1"></div>
+      <button class="btn btn-ghost" id="btnCloseTl">취소</button>
+      <button class="btn btn-primary" id="btnSaveTl">저장</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+// ================== 설정 ==================
+const SUPABASE_URL = 'https://cxuhyaouqtnnebijuxcp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4dWh5YW91cXRubmViaWp1eGNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzQ0MDMsImV4cCI6MjA5Mjg1MDQwM30.pfoDUS8GIHIMKGVz6wN5plp6DoWrcA--NXB1T39abRI';
+const configured = !SUPABASE_URL.includes('YOUR-PROJECT');
+
+const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession:true, autoRefreshToken:true }
+}) : null;
+
+// ================== 유틸 ==================
+const $ = (s,p=document) => p.querySelector(s);
+const $$ = (s,p=document) => Array.from(p.querySelectorAll(s));
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg, type='ok') {
+  const t = $('#toast'); t.textContent = msg; t.className = type;
+  t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(()=>t.style.display='none', 2600);
+}
+
+// ================== 인증 ==================
+async function checkAuth() {
+  if (!configured) {
+    alert('Supabase URL / Anon Key가 설정되지 않았습니다.\nadmin.html 상단의 SUPABASE_URL, SUPABASE_ANON_KEY를 먼저 입력해 주세요.');
+    return false;
+  }
+  const { data } = await supabase.auth.getSession();
+  return !!data.session;
+}
+async function showApp() {
+  $('#loginShell').classList.add('hidden');
+  $('#adminShell').classList.remove('hidden');
+  const { data } = await supabase.auth.getUser();
+  $('#userEmail').textContent = data?.user?.email || '—';
+  await Promise.all([loadSettings(), loadCategories(), loadProjects(), loadServices(), loadTimeline()]);
+  renderDashboard();
+}
+function showLogin() {
+  $('#loginShell').classList.remove('hidden');
+  $('#adminShell').classList.add('hidden');
+}
+$('#btnLogin').onclick = async () => {
+  if (!configured) { toast('Supabase 설정 필요','err'); return; }
+  const email = $('#loginEmail').value.trim(), password = $('#loginPassword').value;
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return toast('로그인 실패: '+error.message,'err');
+  toast('로그인 완료'); await showApp();
+};
+$('#btnLogout').onclick = async e => { e.preventDefault(); await supabase.auth.signOut(); showLogin(); };
+
+// ================== 탭 ==================
+function goTab(name) {
+  $$('.side-link').forEach(x => x.classList.toggle('active', x.dataset.tab === name));
+  $$('.tab').forEach(t => t.classList.toggle('hidden', t.dataset.tab !== name));
+}
+$$('.side-link').forEach(a => a.onclick = e => { e.preventDefault(); goTab(a.dataset.tab); });
+$$('[data-go]').forEach(b => b.onclick = () => goTab(b.dataset.go));
+
+// ================== 캐시 ==================
+let CATS = [], PROJECTS = [], SERVICES = [], TIMELINE = [];
+
+// ================== 설정 ==================
+const S_FIELDS = ['studio_name','studio_tagline','studio_description','logo_url','favicon_url',
+  'hero_headline','hero_subline','hero_image_url',
+  'about_title','about_body','about_image_url',
+  'contact_email','contact_location',
+  'social_instagram','social_youtube','social_twitter','social_github',
+  'footer_copyright','seo_description','theme_bg','theme_fg','theme_accent',
+  // i18n EN fields (안전: 컬럼 없으면 i18n-migration.sql 안 돌린 상태 → 저장 시 무시)
+  'studio_name_en','studio_tagline_en','studio_description_en','seo_description_en',
+  'hero_headline_en','hero_subline_en','about_body_en','contact_location_en','footer_copyright_en'];
+
+async function loadSettings() {
+  const { data, error } = await supabase.from('studio_settings').select('*').eq('id',1).single();
+  if (error) return toast(error.message,'err');
+  S_FIELDS.forEach(k => { const el=$(`#f_${k}`); if (el) el.value = data?.[k] ?? ''; });
+  if (data?.about_image_url) $('#aboutImagePreview').style.backgroundImage = `url('${data.about_image_url}')`;
+}
+$('#btnReloadSettings').onclick = loadSettings;
+$('#btnSaveSettings').onclick = async () => {
+  const payload = { id:1 };
+  S_FIELDS.forEach(k => { const el = $(`#f_${k}`); if (el) payload[k] = el.value || null; });
+  let { error } = await supabase.from('studio_settings').upsert(payload);
+  // EN 컬럼이 없는 환경(=i18n-migration.sql 미실행)이면 EN 키만 떨어내고 재시도
+  if (error && /column .*_en/i.test(error.message)) {
+    const fallback = { ...payload };
+    Object.keys(fallback).forEach(k => { if (k.endsWith('_en')) delete fallback[k]; });
+    ({ error } = await supabase.from('studio_settings').upsert(fallback));
+    if (!error) { toast('저장 완료 (i18n 컬럼 없음 — i18n-migration.sql 실행 필요)','ok'); return; }
+  }
+  if (error) return toast('저장 실패: '+error.message,'err');
+  toast('저장 완료');
+};
+$('#f_about_image_url')?.addEventListener('input', e => {
+  $('#aboutImagePreview').style.backgroundImage = e.target.value ? `url('${e.target.value}')` : '';
+});
+
+// ================== 카테고리 ==================
+async function loadCategories() {
+  const { data, error } = await supabase.from('categories').select('*').order('sort_order');
+  if (error) return toast(error.message,'err');
+  CATS = data || [];
+  renderCats();
+  populateCategorySelect();
+}
+function populateCategorySelect() {
+  const sel = $('#p_category_id');
+  sel.innerHTML = `<option value="">(없음)</option>` + CATS.filter(c => c.slug !== 'all')
+    .map(c => `<option value="${c.id}">${esc(c.label)}</option>`).join('');
+}
+function renderCats() {
+  const el = $('#catList');
+  if (!CATS.length) { el.innerHTML = `<div class="card" style="text-align:center; color:var(--muted);">카테고리가 없습니다. "all" 슬러그로 하나 + 실제 카테고리들을 만들어 주세요.</div>`; return; }
+  el.innerHTML = CATS.map(c => `
+    <div class="row cat" draggable="true" data-id="${c.id}">
+      <span class="handle">⋮⋮</span>
+      <div><b>${esc(c.label)}</b>${c.description?`<div style="color:var(--muted); font-size:11px;">${esc(c.description)}</div>`:''}</div>
+      <code style="color:var(--accent); font-family:var(--mono); font-size:11px;">${esc(c.slug)}</code>
+      <span style="color:var(--muted); font-size:11px;">#${c.sort_order||0}</span>
+      <button class="icon-action" data-act="edit" data-id="${c.id}" title="편집">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-action" data-act="del" data-id="${c.id}" title="삭제">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>
+      </button>
+    </div>`).join('');
+  el.querySelectorAll('[data-act="edit"]').forEach(b => b.onclick = () => openCat(b.dataset.id));
+  el.querySelectorAll('[data-act="del"]').forEach(b => b.onclick = () => delCat(b.dataset.id));
+  enableDnD(el, 'categories', async ids => {
+    for (let i=0;i<ids.length;i++) await supabase.from('categories').update({sort_order:i}).eq('id',ids[i]);
+  });
+}
+let editingCat = null;
+$('#btnNewCat').onclick = () => openCat(null);
+function openCat(id) {
+  $('#catModal').classList.add('open');
+  editingCat = id ? CATS.find(c=>c.id===id) : null;
+  $('#c_slug').value = editingCat?.slug || '';
+  $('#c_label').value = editingCat?.label || '';
+  $('#c_label_en').value = editingCat?.label_en || '';
+  $('#c_description').value = editingCat?.description || '';
+  $('#c_description_en').value = editingCat?.description_en || '';
+  $('#btnDeleteCat').classList.toggle('hidden', !editingCat);
+}
+$('#btnCloseCat').onclick = () => $('#catModal').classList.remove('open');
+$('#btnSaveCat').onclick = async () => {
+  const payload = {
+    slug: ($('#c_slug').value||'').trim(),
+    label: ($('#c_label').value||'').trim(),
+    label_en: $('#c_label_en').value || null,
+    description: $('#c_description').value || null,
+    description_en: $('#c_description_en').value || null,
+  };
+  if (!payload.slug || !payload.label) return toast('슬러그와 라벨을 입력하세요','err');
+  let res = await catUpsert(payload);
+  if (res.error) return toast('저장 실패: '+res.error.message,'err');
+  toast('저장 완료');
+  $('#catModal').classList.remove('open');
+  await loadCategories();
+};
+async function catUpsert(payload) {
+  let res;
+  if (editingCat) res = await supabase.from('categories').update(payload).eq('id',editingCat.id);
+  else { payload.sort_order = CATS.length; res = await supabase.from('categories').insert(payload); }
+  if (res.error && /column .*_en/i.test(res.error.message)) {
+    const fb = { ...payload }; Object.keys(fb).forEach(k => { if (k.endsWith('_en')) delete fb[k]; });
+    if (editingCat) res = await supabase.from('categories').update(fb).eq('id',editingCat.id);
+    else res = await supabase.from('categories').insert(fb);
+  }
+  return res;
+}
+$('#btnDeleteCat').onclick = async () => {
+  if (!editingCat) return;
+  if (!confirm('카테고리를 삭제할까요? (프로젝트의 카테고리는 null이 됩니다)')) return;
+  const { error } = await supabase.from('categories').delete().eq('id', editingCat.id);
+  if (error) return toast(error.message,'err');
+  $('#catModal').classList.remove('open');
+  toast('삭제 완료'); await loadCategories(); await loadProjects();
+};
+async function delCat(id) {
+  if (!confirm('삭제할까요?')) return;
+  await supabase.from('categories').delete().eq('id',id);
+  await loadCategories(); await loadProjects(); toast('삭제 완료');
+}
+
+// ================== 프로젝트 ==================
+async function loadProjects() {
+  const { data, error } = await supabase
+    .from('projects').select('*, categories(slug,label)').order('sort_order');
+  if (error) return toast(error.message,'err');
+  PROJECTS = data || [];
+  renderProjects();
+}
+function renderProjects() {
+  const el = $('#projectList');
+  if (!PROJECTS.length) {
+    el.innerHTML = `<div class="card" style="text-align:center; color:var(--muted);">프로젝트가 없습니다. 오른쪽 위 "＋ 프로젝트" 버튼으로 추가하세요.</div>`; return;
+  }
+  el.innerHTML = PROJECTS.map(p => `
+    <div class="row proj" draggable="true" data-id="${p.id}">
+      <span class="handle">⋮⋮</span>
+      <img src="${p.thumbnail_url||''}" onerror="this.style.opacity=.2">
+      <div>
+        <b>${esc(p.title||'(제목 없음)')}</b>
+        ${p.subtitle?`<div style="color:var(--muted); font-size:11px;">${esc(p.subtitle)}</div>`:''}
+      </div>
+      <span class="chip cat">${esc(p.categories?.label||'—')}</span>
+      <span style="color:var(--muted); font-size:11px; font-family:var(--mono);">${esc(p.year||'')}</span>
+      <span class="chip ${p.is_featured?'feat':''}">${p.is_featured?'FEAT':'—'}</span>
+      <button class="icon-action" data-act="edit" data-id="${p.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-action" data-act="del" data-id="${p.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>
+      </button>
+    </div>`).join('');
+  el.querySelectorAll('[data-act="edit"]').forEach(b => b.onclick = () => openProject(b.dataset.id));
+  el.querySelectorAll('[data-act="del"]').forEach(b => b.onclick = () => delProject(b.dataset.id));
+  enableDnD(el, 'projects', async ids => {
+    for (let i=0;i<ids.length;i++) await supabase.from('projects').update({sort_order:i}).eq('id',ids[i]);
+  });
+}
+let editingProject = null;
+$('#btnNewProject').onclick = () => openProject(null);
+function openProject(id) {
+  $('#projectModal').classList.add('open');
+  editingProject = id ? PROJECTS.find(p=>p.id===id) : null;
+  $('#projectModalTitle').textContent = editingProject ? `편집 · ${editingProject.title||''}` : '새 프로젝트';
+  const p = editingProject || {};
+  $('#p_title').value = p.title || '';
+  $('#p_title_en').value = p.title_en || '';
+  $('#p_subtitle').value = p.subtitle || '';
+  $('#p_subtitle_en').value = p.subtitle_en || '';
+  $('#p_description').value = p.description || '';
+  $('#p_description_en').value = p.description_en || '';
+  $('#p_category_id').value = p.category_id || '';
+  $('#p_year').value = p.year || '';
+  $('#p_client').value = p.client || '';
+  $('#p_client_en').value = p.client_en || '';
+  $('#p_role').value = p.role || '';
+  $('#p_role_en').value = p.role_en || '';
+  $('#p_tech').value = p.tech || '';
+  $('#p_tech_en').value = p.tech_en || '';
+  $('#p_thumbnail_url').value = p.thumbnail_url || '';
+  $('#p_link_label').value = p.link_label || '';
+  $('#p_link_label_en').value = p.link_label_en || '';
+  $('#p_link_url').value = p.link_url || '';
+  $('#p_is_visible').value = p.is_visible === false ? 'false' : 'true';
+  $('#p_is_featured').value = p.is_featured ? 'true' : 'false';
+  $('#btnDeleteProject').classList.toggle('hidden', !editingProject);
+  updateThumbPreview();
+  renderGalleryEditor(parseGallery(p.gallery));
+}
+function parseGallery(g) {
+  if (!g) return [];
+  if (Array.isArray(g)) return g;
+  try { return JSON.parse(g); } catch { return []; }
+}
+function updateThumbPreview() {
+  const u = $('#p_thumbnail_url').value;
+  $('#pThumbPreview').style.backgroundImage = u ? `url('${u}')` : '';
+}
+$('#p_thumbnail_url').oninput = updateThumbPreview;
+function renderGalleryEditor(list) {
+  const el = $('#galleryEditor');
+  el.innerHTML = list.map((g,i) => `
+    <div class="gallery-item" data-idx="${i}">
+      <img src="${g.url||''}" onerror="this.style.opacity=.2">
+      <input placeholder="이미지 URL" value="${esc(g.url||'')}" data-field="url">
+      <input placeholder="캡션 (선택)" value="${esc(g.caption||'')}" data-field="caption">
+      <button class="icon-action" data-del>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>
+      </button>
+    </div>
+  `).join('');
+  el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    const idx = parseInt(b.closest('.gallery-item').dataset.idx);
+    const cur = collectGallery(); cur.splice(idx,1); renderGalleryEditor(cur);
+  });
+  el.querySelectorAll('input[data-field="url"]').forEach(inp => {
+    inp.oninput = e => {
+      const row = e.target.closest('.gallery-item');
+      row.querySelector('img').src = e.target.value || '';
+    };
+  });
+}
+function collectGallery() {
+  return $$('#galleryEditor .gallery-item').map(row => ({
+    url: row.querySelector('[data-field="url"]').value || '',
+    caption: row.querySelector('[data-field="caption"]').value || '',
+  })).filter(g => g.url);
+}
+$('#btnAddGalleryItem').onclick = () => {
+  const cur = collectGallery(); cur.push({url:'', caption:''});
+  renderGalleryEditor(cur);
+};
+$('#btnCloseProject').onclick = () => $('#projectModal').classList.remove('open');
+$('#btnSaveProject').onclick = async () => {
+  const payload = {
+    title: $('#p_title').value || null,
+    title_en: $('#p_title_en').value || null,
+    subtitle: $('#p_subtitle').value || null,
+    subtitle_en: $('#p_subtitle_en').value || null,
+    description: $('#p_description').value || null,
+    description_en: $('#p_description_en').value || null,
+    category_id: $('#p_category_id').value || null,
+    year: $('#p_year').value || null,
+    client: $('#p_client').value || null,
+    client_en: $('#p_client_en').value || null,
+    role: $('#p_role').value || null,
+    role_en: $('#p_role_en').value || null,
+    tech: $('#p_tech').value || null,
+    tech_en: $('#p_tech_en').value || null,
+    thumbnail_url: $('#p_thumbnail_url').value || null,
+    link_label: $('#p_link_label').value || null,
+    link_label_en: $('#p_link_label_en').value || null,
+    link_url: $('#p_link_url').value || null,
+    is_visible: $('#p_is_visible').value === 'true',
+    is_featured: $('#p_is_featured').value === 'true',
+    gallery: collectGallery(),
+  };
+  if (!payload.title) return toast('제목은 필수입니다','err');
+  let res = await projectUpsert(payload);
+  if (res.error) return toast('저장 실패: '+res.error.message,'err');
+  toast('저장 완료');
+  $('#projectModal').classList.remove('open');
+  await loadProjects(); renderDashboard();
+};
+async function projectUpsert(payload) {
+  let res;
+  if (editingProject) res = await supabase.from('projects').update(payload).eq('id',editingProject.id);
+  else { payload.sort_order = PROJECTS.length; res = await supabase.from('projects').insert(payload); }
+  if (res.error && /column .*_en/i.test(res.error.message)) {
+    const fb = { ...payload }; Object.keys(fb).forEach(k => { if (k.endsWith('_en')) delete fb[k]; });
+    if (editingProject) res = await supabase.from('projects').update(fb).eq('id',editingProject.id);
+    else res = await supabase.from('projects').insert(fb);
+  }
+  return res;
+}
+$('#btnDeleteProject').onclick = async () => {
+  if (!editingProject) return;
+  if (!confirm('프로젝트를 삭제할까요?')) return;
+  const { error } = await supabase.from('projects').delete().eq('id', editingProject.id);
+  if (error) return toast(error.message,'err');
+  $('#projectModal').classList.remove('open');
+  toast('삭제 완료'); await loadProjects(); renderDashboard();
+};
+async function delProject(id) {
+  if (!confirm('삭제할까요?')) return;
+  await supabase.from('projects').delete().eq('id',id);
+  await loadProjects(); renderDashboard(); toast('삭제 완료');
+}
+
+// ================== 서비스 ==================
+async function loadServices() {
+  const { data, error } = await supabase.from('services').select('*').order('sort_order');
+  if (error) return toast(error.message,'err');
+  SERVICES = data || [];
+  renderSvcList();
+}
+function renderSvcList() {
+  const el = $('#serviceList');
+  if (!SERVICES.length) { el.innerHTML = `<div class="card" style="text-align:center; color:var(--muted);">서비스가 없습니다.</div>`; return; }
+  el.innerHTML = SERVICES.map(s => `
+    <div class="row svc" draggable="true" data-id="${s.id}">
+      <span class="handle">⋮⋮</span>
+      <span style="font-family:var(--serif); font-style:italic; color:var(--accent); font-size:24px;">${esc(s.icon||'·')}</span>
+      <div><b>${esc(s.title||'')}</b>${s.description?`<div style="color:var(--muted); font-size:11px;">${esc(s.description.substring(0,80))}${s.description.length>80?'…':''}</div>`:''}</div>
+      <span class="chip ${s.is_visible===false?'off':'on'}">${s.is_visible===false?'숨김':'노출'}</span>
+      <button class="icon-action" data-act="edit" data-id="${s.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-action" data-act="del" data-id="${s.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>
+      </button>
+    </div>`).join('');
+  el.querySelectorAll('[data-act="edit"]').forEach(b => b.onclick = () => openSvc(b.dataset.id));
+  el.querySelectorAll('[data-act="del"]').forEach(b => b.onclick = () => delSvc(b.dataset.id));
+  enableDnD(el, 'services', async ids => {
+    for (let i=0;i<ids.length;i++) await supabase.from('services').update({sort_order:i}).eq('id',ids[i]);
+  });
+}
+let editingSvc = null;
+$('#btnNewService').onclick = () => openSvc(null);
+function openSvc(id) {
+  $('#svcModal').classList.add('open');
+  editingSvc = id ? SERVICES.find(s=>s.id===id) : null;
+  $('#s_title').value = editingSvc?.title || '';
+  $('#s_title_en').value = editingSvc?.title_en || '';
+  $('#s_icon').value = editingSvc?.icon || '';
+  $('#s_description').value = editingSvc?.description || '';
+  $('#s_description_en').value = editingSvc?.description_en || '';
+  $('#s_is_visible').value = editingSvc?.is_visible === false ? 'false' : 'true';
+  $('#btnDeleteSvc').classList.toggle('hidden', !editingSvc);
+}
+$('#btnCloseSvc').onclick = () => $('#svcModal').classList.remove('open');
+$('#btnSaveSvc').onclick = async () => {
+  const payload = {
+    title: $('#s_title').value || null,
+    title_en: $('#s_title_en').value || null,
+    icon: $('#s_icon').value || null,
+    description: $('#s_description').value || null,
+    description_en: $('#s_description_en').value || null,
+    is_visible: $('#s_is_visible').value === 'true',
+  };
+  if (!payload.title) return toast('제목을 입력하세요','err');
+  let res = await tableUpsert('services', payload, editingSvc, SERVICES.length);
+  if (res.error) return toast('저장 실패: '+res.error.message,'err');
+  toast('저장 완료'); $('#svcModal').classList.remove('open'); await loadServices();
+};
+async function tableUpsert(tbl, payload, editing, nextOrder) {
+  let res;
+  if (editing) res = await supabase.from(tbl).update(payload).eq('id', editing.id);
+  else { payload.sort_order = nextOrder; res = await supabase.from(tbl).insert(payload); }
+  if (res.error && /column .*_en/i.test(res.error.message)) {
+    const fb = { ...payload }; Object.keys(fb).forEach(k => { if (k.endsWith('_en')) delete fb[k]; });
+    if (editing) res = await supabase.from(tbl).update(fb).eq('id', editing.id);
+    else res = await supabase.from(tbl).insert(fb);
+  }
+  return res;
+}
+$('#btnDeleteSvc').onclick = async () => {
+  if (!editingSvc || !confirm('삭제할까요?')) return;
+  const { error } = await supabase.from('services').delete().eq('id', editingSvc.id);
+  if (error) return toast(error.message,'err');
+  $('#svcModal').classList.remove('open'); toast('삭제 완료'); await loadServices();
+};
+async function delSvc(id) {
+  if (!confirm('삭제할까요?')) return;
+  await supabase.from('services').delete().eq('id',id);
+  await loadServices(); toast('삭제 완료');
+}
+
+// ================== 타임라인 ==================
+async function loadTimeline() {
+  const { data, error } = await supabase.from('timeline_entries').select('*').order('sort_order');
+  if (error) return toast(error.message,'err');
+  TIMELINE = data || [];
+  renderTimelineList();
+}
+function renderTimelineList() {
+  const el = $('#timelineList');
+  if (!TIMELINE.length) { el.innerHTML = `<div class="card" style="text-align:center; color:var(--muted);">타임라인 항목이 없습니다.</div>`; return; }
+  el.innerHTML = TIMELINE.map(t => `
+    <div class="row tl" draggable="true" data-id="${t.id}">
+      <span class="handle">⋮⋮</span>
+      <span style="font-family:var(--serif); font-style:italic; color:var(--accent); font-size:18px;">${esc(t.year||'')}</span>
+      <div><b>${esc(t.title||'')}</b>${t.description?`<div style="color:var(--muted); font-size:11px;">${esc(t.description.substring(0,80))}${t.description.length>80?'…':''}</div>`:''}</div>
+      <span class="chip ${t.is_visible===false?'off':'on'}">${t.is_visible===false?'숨김':'노출'}</span>
+      <button class="icon-action" data-act="edit" data-id="${t.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </button>
+      <button class="icon-action" data-act="del" data-id="${t.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>
+      </button>
+    </div>`).join('');
+  el.querySelectorAll('[data-act="edit"]').forEach(b => b.onclick = () => openTl(b.dataset.id));
+  el.querySelectorAll('[data-act="del"]').forEach(b => b.onclick = () => delTl(b.dataset.id));
+  enableDnD(el, 'timeline_entries', async ids => {
+    for (let i=0;i<ids.length;i++) await supabase.from('timeline_entries').update({sort_order:i}).eq('id',ids[i]);
+  });
+}
+let editingTl = null;
+$('#btnNewTimeline').onclick = () => openTl(null);
+function openTl(id) {
+  $('#tlModal').classList.add('open');
+  editingTl = id ? TIMELINE.find(t=>t.id===id) : null;
+  $('#t_year').value = editingTl?.year || '';
+  $('#t_title').value = editingTl?.title || '';
+  $('#t_title_en').value = editingTl?.title_en || '';
+  $('#t_description').value = editingTl?.description || '';
+  $('#t_description_en').value = editingTl?.description_en || '';
+  $('#t_is_visible').value = editingTl?.is_visible === false ? 'false' : 'true';
+  $('#btnDeleteTl').classList.toggle('hidden', !editingTl);
+}
+$('#btnCloseTl').onclick = () => $('#tlModal').classList.remove('open');
+$('#btnSaveTl').onclick = async () => {
+  const payload = {
+    year: $('#t_year').value || null,
+    title: $('#t_title').value || null,
+    title_en: $('#t_title_en').value || null,
+    description: $('#t_description').value || null,
+    description_en: $('#t_description_en').value || null,
+    is_visible: $('#t_is_visible').value === 'true',
+  };
+  if (!payload.year || !payload.title) return toast('연도와 제목은 필수','err');
+  let res = await tableUpsert('timeline_entries', payload, editingTl, TIMELINE.length);
+  if (res.error) return toast('저장 실패: '+res.error.message,'err');
+  toast('저장 완료'); $('#tlModal').classList.remove('open'); await loadTimeline();
+};
+$('#btnDeleteTl').onclick = async () => {
+  if (!editingTl || !confirm('삭제할까요?')) return;
+  const { error } = await supabase.from('timeline_entries').delete().eq('id', editingTl.id);
+  if (error) return toast(error.message,'err');
+  $('#tlModal').classList.remove('open'); toast('삭제 완료'); await loadTimeline();
+};
+async function delTl(id) {
+  if (!confirm('삭제할까요?')) return;
+  await supabase.from('timeline_entries').delete().eq('id',id);
+  await loadTimeline(); toast('삭제 완료');
+}
+
+// ================== DnD 공통 ==================
+function enableDnD(container, tableName, saveFn) {
+  container.querySelectorAll('[draggable="true"]').forEach(row => {
+    row.ondragstart = () => row.classList.add('dragging');
+    row.ondragend = () => row.classList.remove('dragging');
+    row.ondragover = e => {
+      e.preventDefault();
+      const after = row.getBoundingClientRect().top + row.offsetHeight/2 < e.clientY;
+      const dragging = container.querySelector('.dragging');
+      if (!dragging || dragging === row) return;
+      container.insertBefore(dragging, after ? row.nextSibling : row);
+    };
+    row.ondrop = async () => {
+      const ids = Array.from(container.querySelectorAll('[draggable="true"]')).map(r=>r.dataset.id);
+      await saveFn(ids); toast('순서 저장');
+    };
+  });
+}
+
+// ================== 대시보드 ==================
+function renderDashboard() {
+  const featured = PROJECTS.filter(p=>p.is_featured).length;
+  const visible = PROJECTS.filter(p=>p.is_visible !== false).length;
+  $('#statsGrid').innerHTML = `
+    <div class="stat"><div class="lbl">PROJECTS</div><div class="val">${PROJECTS.length}</div></div>
+    <div class="stat"><div class="lbl">FEATURED</div><div class="val"><em>${featured}</em></div></div>
+    <div class="stat"><div class="lbl">CATEGORIES</div><div class="val">${CATS.length}</div></div>
+    <div class="stat"><div class="lbl">SERVICES</div><div class="val">${SERVICES.length}</div></div>
+  `;
+}
+
+// ================== 내보내기/가져오기 ==================
+$('#btnExport').onclick = async () => {
+  const [settings, cats, projects, services, timeline] = await Promise.all([
+    supabase.from('studio_settings').select('*'),
+    supabase.from('categories').select('*'),
+    supabase.from('projects').select('*'),
+    supabase.from('services').select('*'),
+    supabase.from('timeline_entries').select('*'),
+  ]);
+  const blob = new Blob([JSON.stringify({
+    exported_at: new Date().toISOString(),
+    settings: settings.data, categories: cats.data, projects: projects.data,
+    services: services.data, timeline: timeline.data,
+  }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mantra-backup-${Date.now()}.json`;
+  a.click();
+  toast('내보내기 완료');
+};
+$('#btnImport').onclick = async () => {
+  const file = $('#importFile').files[0];
+  if (!file) return toast('파일을 선택하세요','err');
+  if (!confirm('현재 데이터를 덮어씁니다. 진행할까요?')) return;
+  const data = JSON.parse(await file.text());
+  const NEUTRAL = '00000000-0000-0000-0000-000000000000';
+  await supabase.from('projects').delete().neq('id',NEUTRAL);
+  await supabase.from('services').delete().neq('id',NEUTRAL);
+  await supabase.from('timeline_entries').delete().neq('id',NEUTRAL);
+  await supabase.from('categories').delete().neq('id',NEUTRAL);
+  if (data.settings?.[0]) await supabase.from('studio_settings').upsert({...data.settings[0], id:1});
+  if (data.categories?.length) await supabase.from('categories').insert(data.categories);
+  if (data.projects?.length) await supabase.from('projects').insert(data.projects);
+  if (data.services?.length) await supabase.from('services').insert(data.services);
+  if (data.timeline?.length) await supabase.from('timeline_entries').insert(data.timeline);
+  toast('가져오기 완료');
+  await loadSettings(); await loadCategories(); await loadProjects(); await loadServices(); await loadTimeline();
+  renderDashboard();
+};
+
+// ================== 문의 게시판 (별도 비밀번호) ==================
+const INQ_KEY = 'mantra_inq_pw';
+let INQ_PW = sessionStorage.getItem(INQ_KEY) || '';
+let INQ_LIST = [];
+let editingInq = null;
+
+async function loadInquiries(showErr=true) {
+  if (!INQ_PW) return;
+  try {
+    const { data, error } = await supabase.rpc('list_inquiries', { p_admin_pw: INQ_PW });
+    if (error) throw error;
+    INQ_LIST = data || [];
+    renderInqList();
+    const unread = INQ_LIST.filter(i => !i.is_read).length;
+    const badge = $('#inqBadge');
+    if (unread > 0) { badge.textContent = unread; badge.style.display = 'inline-block'; }
+    else badge.style.display = 'none';
+  } catch (err) {
+    if (showErr) toast('문의 불러오기 실패: '+err.message,'err');
+    INQ_PW = ''; sessionStorage.removeItem(INQ_KEY);
+    $('#inqAuthCard').classList.remove('hidden');
+    $('#inqMainCard').classList.add('hidden');
+  }
+}
+function renderInqList() {
+  $('#inqCount').textContent = `(${INQ_LIST.length})`;
+  const el = $('#inqList');
+  if (!INQ_LIST.length) { el.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--muted); font-style:italic;">받은 문의가 없습니다.</div>`; return; }
+  el.innerHTML = INQ_LIST.map(i => `
+    <div class="row" style="grid-template-columns:48px 1fr 180px 80px auto auto; cursor:pointer;" data-id="${i.id}">
+      <span style="font-family:var(--mono); color:var(--muted); font-size:11px;">#${i.id}</span>
+      <div>
+        <b style="${i.is_read?'color:var(--muted)':''}">${esc(i.title)}</b>
+        <div style="color:var(--muted); font-size:11px; margin-top:2px;">${esc((i.body||'').substring(0,80))}${i.body?.length>80?'…':''}</div>
+      </div>
+      <span style="color:var(--muted); font-size:11px; font-family:var(--mono);">${new Date(i.created_at).toLocaleString()}</span>
+      <span class="chip ${i.is_read?'off':'on'}">${i.is_read?'읽음':'NEW'}</span>
+      <button class="icon-action" data-act="open" data-id="${i.id}" title="열기">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+      <button class="icon-action" data-act="del" data-id="${i.id}" title="삭제">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/></svg>
+      </button>
+    </div>`).join('');
+  el.querySelectorAll('[data-act="open"]').forEach(b => b.onclick = e => { e.stopPropagation(); openInq(b.dataset.id); });
+  el.querySelectorAll('[data-act="del"]').forEach(b => b.onclick = async e => { e.stopPropagation(); await delInq(b.dataset.id); });
+  el.querySelectorAll('.row').forEach(r => r.onclick = () => openInq(r.dataset.id));
+}
+function openInq(id) {
+  editingInq = INQ_LIST.find(x => String(x.id) === String(id));
+  if (!editingInq) return;
+  $('#inqDetId').textContent = editingInq.id;
+  $('#inqDetCreated').textContent = new Date(editingInq.created_at).toLocaleString();
+  const st = $('#inqDetStatus');
+  st.textContent = editingInq.is_read ? '확인됨' : '미확인';
+  st.className = 'chip ' + (editingInq.is_read ? 'off' : 'on');
+  $('#inqDetTitle').value = editingInq.title || '';
+  $('#inqDetBody').value = editingInq.body || '';
+  $('#inqDetContact').value = editingInq.contact || '';
+  $('#btnInqToggleRead').textContent = editingInq.is_read ? '읽지 않음으로' : '읽음 처리';
+  $('#inqModal').classList.add('open');
+  if (!editingInq.is_read) markRead(true, false); // 자동 읽음
+}
+async function markRead(toRead, refresh=true) {
+  if (!editingInq) return;
+  try {
+    const { error } = await supabase.rpc('mark_inquiry_read', { p_admin_pw: INQ_PW, p_id: editingInq.id, p_is_read: toRead });
+    if (error) throw error;
+    editingInq.is_read = toRead;
+    $('#btnInqToggleRead').textContent = toRead ? '읽지 않음으로' : '읽음 처리';
+    const st = $('#inqDetStatus');
+    st.textContent = toRead ? '확인됨' : '미확인';
+    st.className = 'chip ' + (toRead ? 'off' : 'on');
+    if (refresh) await loadInquiries(false);
+  } catch (err) { toast(err.message, 'err'); }
+}
+async function delInq(id) {
+  if (!confirm(`#${id} 문의를 삭제할까요?`)) return;
+  try {
+    const { error } = await supabase.rpc('delete_inquiry', { p_admin_pw: INQ_PW, p_id: parseInt(id) });
+    if (error) throw error;
+    toast('삭제됨');
+    $('#inqModal').classList.remove('open');
+    await loadInquiries();
+  } catch (err) { toast(err.message, 'err'); }
+}
+$('#btnInqLogin').onclick = async () => {
+  const pw = $('#inqPw').value;
+  if (!pw) return toast('비밀번호를 입력하세요','err');
+  INQ_PW = pw; sessionStorage.setItem(INQ_KEY, pw);
+  try {
+    const { error } = await supabase.rpc('list_inquiries', { p_admin_pw: pw });
+    if (error) throw error;
+    $('#inqAuthCard').classList.add('hidden');
+    $('#inqMainCard').classList.remove('hidden');
+    await loadInquiries();
+    toast('인증 완료');
+  } catch (err) {
+    INQ_PW = ''; sessionStorage.removeItem(INQ_KEY);
+    toast('인증 실패: '+err.message, 'err');
+  }
+};
+$('#btnInqRefresh').onclick = () => loadInquiries();
+$('#btnInqLogout').onclick = () => {
+  INQ_PW = ''; sessionStorage.removeItem(INQ_KEY);
+  $('#inqAuthCard').classList.remove('hidden');
+  $('#inqMainCard').classList.add('hidden');
+  $('#inqBadge').style.display = 'none';
+  toast('로그아웃됨');
+};
+$('#btnInqChangePw').onclick = async () => {
+  const oldPw = prompt('현재 비밀번호'); if (!oldPw) return;
+  const newPw = prompt('새 비밀번호 (6자 이상)'); if (!newPw) return;
+  try {
+    const { error } = await supabase.rpc('change_admin_pw', { p_old_pw: oldPw, p_new_pw: newPw });
+    if (error) throw error;
+    INQ_PW = newPw; sessionStorage.setItem(INQ_KEY, newPw);
+    toast('비밀번호가 변경되었습니다');
+  } catch (err) { toast(err.message, 'err'); }
+};
+$('#btnInqClose').onclick = () => $('#inqModal').classList.remove('open');
+$('#inqModal').onclick = e => { if (e.target.id === 'inqModal') $('#inqModal').classList.remove('open'); };
+$('#btnInqToggleRead').onclick = () => editingInq && markRead(!editingInq.is_read);
+$('#btnInqDelete').onclick = () => editingInq && delInq(editingInq.id);
+
+// 탭 전환 시 자동 로딩
+const _origGoTab = goTab;
+window._goTabWrap = function(name) {
+  _origGoTab(name);
+  if (name === 'inquiries' && INQ_PW) {
+    $('#inqAuthCard').classList.add('hidden');
+    $('#inqMainCard').classList.remove('hidden');
+    loadInquiries();
+  } else if (name === 'inquiries') {
+    $('#inqAuthCard').classList.remove('hidden');
+    $('#inqMainCard').classList.add('hidden');
+  }
+};
+$$('.side-link').forEach(a => a.onclick = e => { e.preventDefault(); window._goTabWrap(a.dataset.tab); });
+$$('[data-go]').forEach(b => b.onclick = () => window._goTabWrap(b.dataset.go));
+
+// ================== 시작 ==================
+(async () => {
+  if (await checkAuth()) {
+    await showApp();
+    // 백그라운드로 문의 카운트 한 번 시도 (기존 비밀번호가 sessionStorage에 있을 때)
+    if (INQ_PW) loadInquiries(false);
+  } else showLogin();
+})();
+</script>
+</body>
+</html>

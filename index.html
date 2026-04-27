@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>만트라 스튜디오 · MANTRA STUDIO</title>
+<meta name="description" id="metaDescription" content="전주 기반 1인 창작 스튜디오 · 웹툰과 AI 도구" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --fg: #111111;
+    --muted: #747068;
+    --line: #1a1a1a;
+    --accent: #d94b2b;
+    --panel: #ebe8e0;
+    --serif: 'Instrument Serif', 'Noto Serif KR', serif;
+    --sans:  'Noto Sans KR', sans-serif;
+    --mono:  'JetBrains Mono', monospace;
+  }
+  *,*::before,*::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin:0; background: var(--bg); color: var(--fg);
+    font-family: var(--sans); font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    font-feature-settings: 'ss01','cv11';
+  }
+  a { color:inherit; text-decoration:none; }
+  button { font-family:inherit; cursor:pointer; border:0; background:none; color:inherit; }
+  img { max-width:100%; display:block; }
+
+  /* ============ 상단 유틸 + 헤더 ============ */
+  .top-bar {
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 8px 24px; border-bottom: 1px solid rgba(0,0,0,.12);
+    font-family: var(--mono); font-size: 11px; letter-spacing:.08em;
+    color: var(--muted);
+  }
+  .top-bar .status-dot {
+    display:inline-block; width:6px; height:6px; background:#22c55e; border-radius:50%;
+    margin-right:6px; animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+  .top-bar .util { display:flex; gap:18px; }
+  .top-bar .util a:hover { color: var(--fg); }
+
+  .header {
+    position: sticky; top:0; z-index:40;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+  }
+  .header-inner {
+    display:grid; grid-template-columns: 1fr auto 1fr;
+    align-items:center; padding: 20px 28px;
+  }
+  .header-left { display:flex; gap:10px; align-items:center; }
+  .header-right { display:flex; gap:10px; justify-content:flex-end; align-items:center; }
+  .logo {
+    font-family: var(--serif); font-style:italic; font-size: 30px; letter-spacing:-.01em;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo::before {
+    content:''; width:10px; height:10px; background: var(--accent);
+    border-radius:50%;
+  }
+  .logo img { max-height:36px; }
+  .icon-btn {
+    width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
+    border-radius:50%; border:1px solid transparent; transition:.2s;
+  }
+  .icon-btn:hover { border-color: var(--line); }
+  .icon-btn svg { width:18px; height:18px; }
+
+  .nav {
+    display:flex; justify-content:center; gap:34px;
+    padding: 6px 0 20px;
+    font-family: var(--mono); font-size: 12px; font-weight:500;
+    letter-spacing: .16em; text-transform:uppercase;
+  }
+  .nav a { position:relative; padding: 4px 2px; color: var(--muted); transition: .2s; }
+  .nav a:hover { color: var(--fg); }
+  .nav a.dot::before {
+    content:''; display:inline-block; width:4px; height:4px; background: var(--accent);
+    border-radius:50%; margin-right:7px; vertical-align:middle;
+  }
+
+  /* ============ 사이드 드로어 ============ */
+  .backdrop { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:70; opacity:0; pointer-events:none; transition:.3s; }
+  .backdrop.on { opacity:1; pointer-events:auto; }
+  .aside {
+    position:fixed; top:0; left:-360px; height:100vh; width:340px;
+    background: #0f0f0e; color: #f5f3ee; padding: 32px 28px;
+    transition: left .45s cubic-bezier(.6,.01,.05,1);
+    z-index:80; display:flex; flex-direction:column;
+  }
+  .aside.open { left:0; }
+  .aside-logo { font-family:var(--serif); font-style:italic; font-size: 24px; }
+  .aside-close { position:absolute; top:22px; right:22px; color:#f5f3ee; }
+  .aside-close svg { width:20px; height:20px; }
+  .aside nav { margin-top:40px; display:flex; flex-direction:column; gap:18px;
+    font-family: var(--mono); font-size:15px; letter-spacing:.15em; text-transform:uppercase; }
+  .aside nav a { border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom:14px; }
+  .aside nav a:hover { color: var(--accent); }
+  .aside-foot { margin-top:auto; font-family:var(--mono); font-size:11px; opacity:.5; letter-spacing:.1em; }
+
+  /* ============ 히어로 ============ */
+  .hero {
+    padding: 80px 28px 40px;
+    position:relative;
+    border-bottom: 1px solid var(--line);
+    display:grid; grid-template-columns: 1.3fr 1fr; gap: 40px;
+    align-items: end;
+    min-height: 72vh;
+  }
+  .hero-text { position:relative; }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .25em; text-transform:uppercase;
+    color: var(--muted); margin-bottom: 32px; display:flex; align-items:center; gap:10px;
+  }
+  .hero-eyebrow::before {
+    content:''; width: 32px; height:1px; background: var(--muted);
+  }
+  .hero-headline {
+    font-family: var(--serif);
+    font-size: clamp(56px, 9vw, 140px);
+    line-height: .95; letter-spacing: -.03em;
+    margin: 0;
+    font-weight: 400;
+  }
+  .hero-headline em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-subline {
+    font-family: var(--sans); font-size: clamp(15px, 1.3vw, 18px);
+    line-height: 1.75; color: var(--fg); max-width: 480px;
+    margin: 32px 0 0;
+  }
+  .hero-visual {
+    aspect-ratio: 3/4;
+    background: #111 center/cover no-repeat;
+    position: relative;
+    overflow:hidden;
+  }
+  .hero-visual::after {
+    content: attr(data-label);
+    position:absolute; bottom: 16px; left: 16px;
+    font-family: var(--mono); font-size:10px; letter-spacing: .15em;
+    color: #fff; text-transform: uppercase;
+    background: rgba(0,0,0,.6); padding: 6px 10px;
+    backdrop-filter: blur(4px);
+  }
+  .hero-meta {
+    position: absolute; bottom: 0; right: 0;
+    display:flex; gap: 40px;
+    padding: 20px 0 0;
+    border-top: 1px solid var(--line);
+  }
+  .hero-meta dl { margin:0; display:flex; flex-direction:column; gap:2px; }
+  .hero-meta dt { font-family: var(--mono); font-size:10px; color: var(--muted); letter-spacing:.15em; text-transform:uppercase; }
+  .hero-meta dd { font-family: var(--serif); font-size: 22px; margin:0; line-height:1.1; }
+
+  /* 티커 */
+  .ticker {
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    overflow:hidden; padding: 16px 0;
+    font-family: var(--mono); font-size: 13px; letter-spacing: .1em;
+    text-transform: uppercase;
+    background: var(--panel);
+  }
+  .ticker-track { display:inline-flex; white-space:nowrap; animation: tick 45s linear infinite; }
+  .ticker-track span { padding: 0 28px; }
+  .ticker-track span::before { content:'✦'; color: var(--accent); margin-right: 14px; }
+  @keyframes tick { from { transform:translateX(0) } to { transform:translateX(-50%) } }
+
+  /* ============ 공통 섹션 ============ */
+  section.blk {
+    padding: 120px 28px;
+    border-bottom: 1px solid var(--line);
+    position:relative;
+  }
+  .blk-head {
+    display:grid; grid-template-columns: 120px 1fr auto; gap: 28px;
+    align-items: end; margin-bottom: 64px;
+    padding-bottom: 20px; border-bottom: 1px solid var(--line);
+  }
+  .blk-num {
+    font-family: var(--mono); font-size:11px; letter-spacing:.2em;
+    color: var(--muted);
+  }
+  .blk-title {
+    font-family: var(--serif);
+    font-size: clamp(40px, 6vw, 84px);
+    margin:0; letter-spacing: -.02em; line-height: 1;
+    font-weight:400;
+  }
+  .blk-title em { font-style:italic; color: var(--accent); }
+  .blk-meta {
+    font-family: var(--mono); font-size:11px; color: var(--muted);
+    letter-spacing: .15em; text-transform: uppercase;
+    text-align:right;
+  }
+
+  /* About 섹션 */
+  .about-grid {
+    display:grid; grid-template-columns: 1fr 1.2fr; gap: 80px;
+    align-items: start;
+  }
+  .about-grid .left img {
+    width:100%; aspect-ratio: 4/5; object-fit:cover; background:#ddd;
+  }
+  .about-grid .right {
+    font-family: var(--serif); font-size: clamp(20px, 2.2vw, 30px);
+    line-height: 1.55; color: var(--fg); letter-spacing: -.005em;
+  }
+  .about-grid .right p + p { margin-top: 1.1em; }
+
+  /* Services 그리드 */
+  .services {
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .service {
+    background: var(--bg);
+    padding: 36px 28px;
+    min-height: 200px;
+    display:flex; flex-direction:column;
+    transition: .3s;
+  }
+  .service:hover { background: var(--panel); }
+  .service .icon {
+    font-family: var(--serif); font-size: 34px; font-style:italic;
+    color: var(--accent); margin-bottom: 20px;
+  }
+  .service h4 {
+    font-family: var(--sans); font-weight:700; font-size:16px;
+    margin: 0 0 10px;
+  }
+  .service p {
+    font-family: var(--sans); font-size:13px; line-height:1.7;
+    color: var(--muted); margin:0;
+  }
+
+  /* 포트폴리오 필터 */
+  .filters {
+    display:flex; gap:8px; flex-wrap:wrap;
+    margin-bottom: 36px;
+  }
+  .filter-chip {
+    padding: 8px 16px;
+    font-family: var(--mono); font-size:11px; letter-spacing:.15em;
+    text-transform: uppercase;
+    border: 1px solid var(--line);
+    background: transparent;
+    border-radius: 999px;
+    transition: .2s;
+  }
+  .filter-chip:hover { background: var(--fg); color: var(--bg); }
+  .filter-chip.on { background: var(--fg); color: var(--bg); }
+  .filter-count { font-size:9px; opacity:.6; margin-left:4px; }
+
+  /* 포트폴리오 그리드 — 비정형 */
+  .work-grid {
+    display:grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 28px 20px;
+  }
+  .work {
+    grid-column: span 4;
+    cursor: pointer;
+  }
+  .work.featured { grid-column: span 6; }
+  .work.wide { grid-column: span 8; }
+  .work:nth-child(5n+1) { grid-column: span 5; }
+  .work:nth-child(5n+2) { grid-column: span 7; }
+  .work:nth-child(5n+3) { grid-column: span 4; }
+  .work:nth-child(5n+4) { grid-column: span 4; }
+  .work:nth-child(5n+5) { grid-column: span 4; }
+
+  .work .thumb {
+    position: relative;
+    aspect-ratio: 4/3;
+    background: #1a1a1a center/cover no-repeat;
+    overflow:hidden;
+    margin-bottom: 16px;
+  }
+  .work.featured .thumb { aspect-ratio: 16/10; }
+  .work .thumb::before {
+    content:''; position:absolute; inset:0; background:rgba(0,0,0,0);
+    transition: .3s;
+  }
+  .work:hover .thumb::before { background: rgba(0,0,0,.1); }
+  .work .thumb .overlay {
+    position:absolute; bottom:0; left:0; right:0;
+    padding: 16px;
+    background: linear-gradient(to top, rgba(0,0,0,.8), transparent);
+    color:#fff; font-family: var(--mono); font-size: 10px; letter-spacing: .15em;
+    text-transform: uppercase; opacity: 0; transition: .3s;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .work:hover .thumb .overlay { opacity: 1; }
+  .work .cat {
+    font-family: var(--mono); font-size: 10px; letter-spacing:.2em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .work h3 {
+    font-family: var(--serif); font-size: clamp(22px, 2vw, 32px);
+    margin: 0 0 6px; font-weight:400; line-height:1.1;
+  }
+  .work p {
+    font-family: var(--sans); font-size: 13px; color: var(--muted);
+    margin: 0; line-height: 1.5;
+  }
+  .work .meta-line {
+    display:flex; gap:16px; margin-top: 10px;
+    font-family: var(--mono); font-size:10px; letter-spacing:.1em;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  /* 타임라인 */
+  .timeline {
+    max-width: 860px; margin: 0 auto;
+    position:relative;
+  }
+  .tl-row {
+    display:grid; grid-template-columns: 100px 1fr;
+    gap: 40px; padding: 28px 0;
+    border-bottom: 1px solid rgba(0,0,0,.15);
+    position: relative;
+  }
+  .tl-row:last-child { border-bottom: 0; }
+  .tl-year {
+    font-family: var(--serif); font-style: italic; font-size: 32px;
+    color: var(--accent); line-height:1;
+  }
+  .tl-content h5 {
+    font-family: var(--sans); font-weight:700; font-size: 16px;
+    margin: 0 0 6px;
+  }
+  .tl-content p {
+    font-family: var(--sans); font-size: 14px; line-height:1.6;
+    color: var(--muted); margin: 0;
+  }
+
+  /* Contact CTA */
+  .cta {
+    padding: 160px 28px;
+    background: #0f0f0e;
+    color: var(--bg);
+    text-align:center;
+    border-bottom: 1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .cta::before {
+    content:'MANTRA · STUDIO · '.repeat(20);
+    position:absolute; top: 20px; left: 0; right: 0;
+    font-family: var(--mono); font-size: 120px; font-weight:700;
+    white-space: nowrap; letter-spacing:.1em;
+    color: rgba(255,255,255,.04);
+    pointer-events:none;
+    transform: translateY(-40%);
+  }
+  .cta-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing:.25em;
+    opacity:.6; text-transform:uppercase; margin-bottom:20px;
+    display:inline-block;
+  }
+  .cta h2 {
+    font-family: var(--serif); font-size: clamp(48px, 7vw, 110px);
+    margin: 0 0 32px; font-weight:400; line-height:.95; letter-spacing:-.02em;
+    position:relative;
+  }
+  .cta h2 em { font-style:italic; color: var(--accent); }
+  .cta a.cta-btn {
+    display:inline-block;
+    font-family: var(--mono); font-size: 13px; letter-spacing:.2em;
+    text-transform:uppercase;
+    padding: 20px 44px;
+    border: 1px solid rgba(255,255,255,.3);
+    transition: .25s;
+    position:relative;
+  }
+  .cta a.cta-btn:hover { background:#fff; color:#0f0f0e; border-color:#fff; }
+
+  /* 푸터 */
+  footer {
+    padding: 64px 28px 28px;
+    background: var(--panel);
+    font-family: var(--mono); font-size: 11px; letter-spacing:.1em;
+    color: var(--muted);
+  }
+  .foot-top { display:grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap:36px;
+    padding-bottom: 40px; border-bottom: 1px solid rgba(0,0,0,.15); }
+  .foot-top h5 { font-family: var(--sans); font-size:11px; letter-spacing:.2em;
+    text-transform:uppercase; color: var(--fg); font-weight:700; margin: 0 0 14px; }
+  .foot-brand { font-family: var(--serif); font-style:italic; font-size: 36px; color: var(--fg); line-height:1; }
+  .foot-top ul { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:6px; }
+  .foot-top a:hover { color: var(--accent); }
+  .foot-bottom { padding-top: 22px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+
+  /* ============ 관리자 인라인 편집 ============ */
+  .ed-btn {
+    display:none;
+    position:absolute; top:14px; right:14px; z-index:5;
+    width:36px; height:36px; border-radius:50%;
+    background:#0f0f0e; color:#fff; border:1px solid var(--accent);
+    align-items:center; justify-content:center;
+    font-size:14px; cursor:pointer; transition:.15s;
+    box-shadow:0 4px 12px rgba(0,0,0,.3);
+  }
+  .ed-btn:hover { background:var(--accent); transform:scale(1.08); }
+  body.admin-mode .ed-btn { display:inline-flex; }
+  body.admin-mode [data-editable] { position:relative; outline:1px dashed transparent; transition:outline .2s; }
+  body.admin-mode [data-editable]:hover { outline-color:var(--accent); outline-offset:6px; }
+  /* 카드형 (work, service, tl-row) — 우측 상단에 작은 ✎ */
+  body.admin-mode .work .ed-btn,
+  body.admin-mode .service .ed-btn,
+  body.admin-mode .tl-row .ed-btn { width:28px; height:28px; font-size:11px; top:8px; right:8px; }
+  /* 새 항목 추가 버튼 */
+  .ed-add {
+    display:none;
+    margin:20px auto 0; padding:14px 24px;
+    background:transparent; border:2px dashed var(--accent); color:var(--accent);
+    font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+    border-radius:6px; cursor:pointer; transition:.2s;
+  }
+  .ed-add:hover { background:var(--accent); color:#fff; }
+  body.admin-mode .ed-add { display:inline-block; }
+
+  /* 편집 모달 폼 */
+  .ed-row { margin-bottom:14px; }
+  .ed-row label { display:block; font-family:var(--mono); font-size:10px; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .ed-row input, .ed-row textarea, .ed-row select {
+    width:100%; padding:11px 12px; background:var(--panel); border:1px solid var(--line);
+    color:var(--fg); font-family:inherit; font-size:14px;
+  }
+  .ed-row textarea { min-height:90px; resize:vertical; line-height:1.6; font-family:var(--sans); }
+  .ed-row.ed-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .ed-row.ed-grid2 label { grid-column:1/-1; }
+  .ed-thumb { width:100%; aspect-ratio:16/9; background:#1a1a1e center/cover no-repeat;
+    margin-top:8px; border:1px dashed var(--line); }
+
+  /* ============ 문의 모달 (비밀글) ============ */
+  .iq-bg { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:95;
+    display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:40px 20px; }
+  .iq-bg.on { display:flex; }
+  .iq-modal { background:var(--bg); max-width:560px; width:100%;
+    border:1px solid var(--line); padding:32px 32px 28px; position:relative; }
+  .iq-tabs { display:flex; gap:0; border-bottom:1px solid var(--line); margin:-12px -32px 22px; }
+  .iq-tab { flex:1; padding:14px 16px; background:none; border:0; cursor:pointer;
+    font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--muted); border-bottom:2px solid transparent; }
+  .iq-tab.active { color:var(--fg); border-bottom-color:var(--accent); }
+  .iq-close { position:absolute; top:16px; right:16px; width:34px; height:34px;
+    display:flex; align-items:center; justify-content:center; border-radius:50%;
+    background:#0f0f0e; color:#fff; border:0; cursor:pointer; font-size:14px; }
+  .iq-help { font-size:13px; color:var(--muted); line-height:1.7; margin:0 0 18px; }
+  .iq-help b { color:var(--fg); }
+  .iq-field { margin-bottom:14px; }
+  .iq-field label { display:block; font-family:var(--mono); font-size:10px; letter-spacing:.15em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .iq-field input, .iq-field textarea {
+    width:100%; padding:11px 12px; background:var(--panel); border:1px solid var(--line);
+    color:var(--fg); font-family:inherit; font-size:14px;
+  }
+  .iq-field textarea { min-height:120px; resize:vertical; line-height:1.6; font-family:var(--sans); }
+  .iq-field input:focus, .iq-field textarea:focus { outline:0; border-color:var(--accent); }
+  .iq-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); }
+  .iq-btn {
+    padding:11px 20px; background:transparent; border:1px solid var(--line); cursor:pointer;
+    font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--fg); transition:.15s;
+  }
+  .iq-btn:hover { background:var(--panel); }
+  .iq-btn-primary { background:var(--fg); color:var(--bg); border-color:var(--fg); }
+  .iq-btn-primary:hover { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .iq-btn-danger { color:#c00; border-color:#c00; }
+  .iq-btn-danger:hover { background:#c00; color:#fff; }
+  .iq-msg { padding:14px; margin-top:12px; font-size:13px; line-height:1.7;
+    background:var(--panel); border-left:3px solid var(--accent); }
+  .iq-msg.err { border-left-color:#c00; color:#c00; background:#fee; }
+  .iq-msg.ok { border-left-color:#22c55e; }
+  .iq-ref { display:inline-block; margin-top:8px; padding:6px 12px; background:#0f0f0e; color:#fff;
+    font-family:var(--mono); font-size:14px; font-weight:700; letter-spacing:.05em; }
+
+  /* ============ 프로젝트 상세 모달 ============ */
+  .modal-bg {
+    position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:90;
+    display:none; align-items:flex-start; justify-content:center;
+    overflow-y:auto; padding: 40px 20px;
+  }
+  .modal-bg.on { display:flex; }
+  .modal {
+    background: var(--bg); max-width: 1000px; width:100%;
+    border-radius: 0;
+    padding: 0;
+    position:relative;
+  }
+  .modal-close {
+    position: sticky; top:20px; float:right;
+    width:44px; height:44px; display:flex; align-items:center; justify-content:center;
+    background:#0f0f0e; color:#fff; border-radius:50%;
+    margin: 20px 20px 0 auto; z-index: 2;
+  }
+  .modal-cover {
+    width:100%; aspect-ratio: 16/9;
+    background: #222 center/cover no-repeat;
+  }
+  .modal-body { padding: 48px 56px 64px; }
+  .modal-cat {
+    font-family: var(--mono); font-size:11px; letter-spacing:.25em; text-transform:uppercase;
+    color: var(--accent); margin-bottom: 16px;
+  }
+  .modal-title {
+    font-family: var(--serif); font-size: clamp(36px, 5vw, 64px);
+    margin: 0 0 8px; line-height:1; font-weight:400; letter-spacing:-.01em;
+  }
+  .modal-sub { font-family: var(--serif); font-style:italic; font-size: 22px; color: var(--muted); margin: 0 0 36px; }
+  .modal-meta {
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:24px;
+    padding: 24px 0; margin-bottom: 32px;
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .modal-meta dt { font-family:var(--mono); font-size:10px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase; margin-bottom:4px; }
+  .modal-meta dd { font-family:var(--sans); font-size:14px; margin:0; font-weight:500; }
+  .modal-desc {
+    font-family: var(--sans); font-size:15px; line-height:1.8; color: #222;
+    max-width: 720px;
+  }
+  .modal-gallery {
+    margin-top: 40px; display:grid; gap: 20px;
+  }
+  .modal-gallery figure { margin:0; }
+  .modal-gallery img { width:100%; background:#ddd; }
+  .modal-gallery figcaption {
+    font-family:var(--mono); font-size:11px; color:var(--muted);
+    margin-top:8px; letter-spacing:.1em;
+  }
+  .modal-link {
+    display:inline-block; margin-top: 32px;
+    font-family: var(--mono); font-size: 12px; letter-spacing:.2em; text-transform:uppercase;
+    padding: 14px 28px; border:1px solid var(--line);
+    transition: .2s;
+  }
+  .modal-link:hover { background: var(--fg); color: var(--bg); }
+
+  /* 스크롤 리빌 */
+  .reveal { opacity:0; transform: translateY(20px); transition: opacity .7s, transform .7s; }
+  .reveal.on { opacity:1; transform:none; }
+
+  /* ============ 반응형 ============ */
+  @media (max-width: 960px) {
+    .hero { grid-template-columns: 1fr; padding: 48px 20px; min-height:auto; }
+    .hero-visual { aspect-ratio: 4/3; order:-1; }
+    .hero-meta { position: relative; flex-wrap:wrap; gap: 20px; }
+    .blk-head { grid-template-columns: 1fr; gap: 8px; }
+    .blk-meta { text-align:left; }
+    .about-grid { grid-template-columns: 1fr; gap:30px; }
+    .work, .work.featured, .work.wide,
+    .work:nth-child(5n+1), .work:nth-child(5n+2), .work:nth-child(5n+3),
+    .work:nth-child(5n+4), .work:nth-child(5n+5) { grid-column: span 12; }
+    .work-grid { gap: 40px 16px; }
+    .foot-top { grid-template-columns: 1fr 1fr; }
+    section.blk { padding: 72px 20px; }
+    .modal-body { padding: 32px 24px 48px; }
+    .modal-meta { grid-template-columns: 1fr 1fr; }
+    .header-inner { padding: 14px 18px; }
+    .nav { gap:18px; font-size:11px; flex-wrap:wrap; padding: 4px 14px 14px; }
+    .logo { font-size: 22px; }
+    .top-bar { padding: 6px 16px; font-size:10px; }
+  }
+
+  /* ════════════════════════════════════════════════════════════
+     TRENDY OVERRIDES (2026)
+     - 그레인 텍스처, 커스텀 커서, 스크롤 프로그레스
+     - 히어로 그라디언트 메시 + 큰 타이포 + 회전 키워드
+     - 벤토 서비스 그리드, 카드 호버 줌, 타임라인 연결선
+     - 떠있는 하단 알약 네비
+     ═══════════════════════════════════════════════════════════ */
+  :root {
+    --accent2: #2d5fae;            /* 보조 포인트 — 코발트 */
+    --accent3: #f4c95d;            /* 보조 포인트 — 골든 */
+    --shadow-soft: 0 30px 80px -30px rgba(0,0,0,.25);
+    --shadow-card: 0 18px 50px -18px rgba(0,0,0,.18);
+    --ease-out: cubic-bezier(.22,1,.36,1);
+    --ease-bouncy: cubic-bezier(.68,-0.4,.27,1.45);
+    --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  ::selection { background: var(--accent); color: #fff; }
+  body { font-feature-settings: 'ss01','cv11','case'; }
+
+  /* 1) 그레인 텍스처 오버레이 + 미세한 컬러 메시 */
+  body::before {
+    content:''; position:fixed; inset:0; pointer-events:none; z-index:60;
+    background-image: var(--grain); opacity:.08; mix-blend-mode:multiply;
+  }
+
+  /* 2) 스크롤 프로그레스 바 */
+  #scrollProgress {
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2));
+    z-index: 100; transition: width .1s linear;
+    box-shadow: 0 0 12px rgba(217,75,43,.5);
+  }
+
+  /* 3) 커스텀 커서 블롭 (데스크탑 전용) */
+  #cursorBlob {
+    position:fixed; top:0; left:0; width:32px; height:32px;
+    border:1.5px solid var(--accent); border-radius:50%;
+    pointer-events:none; z-index:99;
+    transform:translate(-50%,-50%);
+    transition: transform .25s var(--ease-out), width .2s, height .2s, border-color .2s, background .2s;
+    mix-blend-mode: difference;
+  }
+  #cursorBlob.hover { width:64px; height:64px; background: var(--accent); border-color: var(--accent); }
+  @media (hover:none) { #cursorBlob { display:none; } }
+
+  /* 4) 헤더 — 블러 강화 + 스크롤 시 살짝 축소 */
+  .header { transition: padding .3s var(--ease-out), background .3s; }
+  .header.scrolled { padding: 0; background: rgba(245,243,238,.85); backdrop-filter: blur(20px) saturate(1.4); }
+  .header.scrolled .header-inner { padding: 12px 28px; }
+  .header.scrolled .nav { padding-bottom: 12px; }
+  .logo { transition: transform .3s var(--ease-out); }
+  .logo:hover { transform: rotate(-2deg) scale(1.04); }
+  .logo::before { transition: transform .4s var(--ease-bouncy); }
+  .logo:hover::before { transform: scale(1.6) rotate(45deg); }
+
+  /* 5) 히어로 — 애니메이션 그라디언트 메시 + 거대 타이포 */
+  .hero {
+    background:
+      radial-gradient(at 20% 30%, rgba(217,75,43,.18) 0%, transparent 50%),
+      radial-gradient(at 80% 20%, rgba(45,95,174,.12) 0%, transparent 50%),
+      radial-gradient(at 60% 80%, rgba(244,201,93,.15) 0%, transparent 55%),
+      var(--bg);
+    background-size: 200% 200%;
+    animation: meshShift 18s ease-in-out infinite;
+    padding: 60px 28px 60px; min-height: 92vh;
+    position:relative; overflow:hidden;
+  }
+  @keyframes meshShift {
+    0%,100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+  }
+  .hero-headline {
+    font-size: clamp(64px, 13vw, 200px) !important;
+    line-height: .88 !important;
+    letter-spacing: -.045em !important;
+  }
+  .hero-headline em {
+    background: linear-gradient(135deg, var(--accent), #ff8a4a 60%, var(--accent3));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    position: relative; display: inline-block;
+  }
+  .hero-headline em::after {
+    content:''; position:absolute; left:-2%; right:-2%; bottom: 6%;
+    height: 6px; background: var(--accent); opacity:.18;
+    border-radius: 3px; transform: skew(-12deg);
+  }
+  .hero-eyebrow {
+    background: rgba(0,0,0,.04); display: inline-flex !important;
+    padding: 8px 16px 8px 14px; border-radius: 999px;
+    border: 1px solid rgba(0,0,0,.08);
+    backdrop-filter: blur(8px);
+  }
+  .hero-eyebrow::before {
+    background: var(--accent); width: 6px !important; height: 6px !important;
+    border-radius: 50%; animation: pulse 2.4s infinite;
+  }
+  .hero-visual {
+    border-radius: 18px; box-shadow: var(--shadow-soft);
+    transition: transform .8s var(--ease-out);
+    transform: rotate(-1.2deg);
+  }
+  .hero-visual:hover { transform: rotate(0deg) scale(1.015); }
+  .hero-visual::before {
+    content:''; position:absolute; inset:0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,.35));
+    z-index:1; pointer-events:none;
+  }
+  /* 히어로 우측 상단 — 회전 라벨 (장식) */
+  .hero::after {
+    content:'STUDIO ★ STORIES ★ TOOLS ★ STUDIO ★ STORIES ★ TOOLS ★';
+    position:absolute; top: 80px; right: -60px;
+    width: 180px; height: 180px;
+    font-family: var(--mono); font-size: 10px; letter-spacing:.2em;
+    color: var(--fg); opacity:.4;
+    background: var(--accent3); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; line-height: 1.6;
+    animation: spin 28s linear infinite;
+    z-index: 2;
+    box-shadow: 0 12px 30px rgba(244,201,93,.4);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (max-width: 960px) { .hero::after { width:120px; height:120px; top: 20px; right: -40px; } }
+
+  /* 6) 티커 — 두 줄, 한쪽은 반대 방향 */
+  .ticker { padding: 14px 0; background: var(--fg); color: var(--bg); border:0; }
+  .ticker .ticker-track span::before { color: var(--accent3); }
+  .ticker .ticker-track span { font-weight: 700; }
+
+  /* 7) 섹션 헤더 — 더 큰 번호 + 가로 라인 강조 */
+  .blk { padding: 140px 28px; }
+  .blk-num {
+    font-size: 13px !important; letter-spacing:.3em !important;
+    padding: 6px 12px; background: var(--accent); color:#fff;
+    border-radius: 4px; display: inline-block;
+    align-self: end;
+  }
+  .blk-title { font-size: clamp(48px, 8vw, 120px) !important; letter-spacing: -.035em !important; }
+  .blk-title em { position: relative; }
+  .blk-head { border-bottom-width: 2px; padding-bottom: 28px; }
+
+  /* 8) ABOUT — 사이드 vertical 라벨 + 둥근 이미지 */
+  #about { position: relative; }
+  #about::before {
+    content:'ABOUT THE STUDIO'; position:absolute; top: 50%; left: 24px;
+    transform: rotate(-90deg) translateY(-50%); transform-origin: left center;
+    font-family: var(--mono); font-size: 10px; letter-spacing: .4em;
+    color: var(--muted); opacity:.6; pointer-events:none;
+  }
+  @media (max-width: 960px) { #about::before { display:none; } }
+  .about-grid .left img {
+    border-radius: 14px; box-shadow: var(--shadow-card);
+    transition: transform .6s var(--ease-out);
+  }
+  .about-grid .left img:hover { transform: scale(1.02) rotate(.5deg); }
+
+  /* 9) 서비스 — 벤토 그리드 (불균등 카드) */
+  .services {
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 16px !important; background: transparent !important; border: 0 !important;
+  }
+  .service {
+    background: var(--panel); border-radius: 16px;
+    padding: 32px 28px; min-height: 200px;
+    grid-column: span 3;
+    transition: transform .4s var(--ease-out), box-shadow .4s, background .3s;
+    position: relative; overflow: hidden;
+  }
+  .service:hover { transform: translateY(-6px); box-shadow: var(--shadow-card); background: var(--bg); }
+  .service:nth-child(3n+1) { grid-column: span 2; background: var(--fg); color: var(--bg); }
+  .service:nth-child(3n+1) .icon { color: var(--accent3); }
+  .service:nth-child(3n+1) p { color: rgba(255,255,255,.7); }
+  .service:nth-child(3n+2) { grid-column: span 4; }
+  .service:nth-child(3n) { grid-column: span 3; background: var(--accent); color:#fff; }
+  .service:nth-child(3n) .icon { color: #fff; }
+  .service:nth-child(3n) p { color: rgba(255,255,255,.85); }
+  .service .icon {
+    font-size: 56px !important; line-height: 1; margin-bottom: 24px !important;
+    transition: transform .5s var(--ease-bouncy);
+  }
+  .service:hover .icon { transform: scale(1.2) rotate(-8deg); }
+  @media (max-width: 768px) { .services { grid-template-columns: 1fr !important; }
+    .service, .service:nth-child(3n+1), .service:nth-child(3n+2), .service:nth-child(3n) { grid-column: 1/-1; }
+  }
+
+  /* 10) 필터 칩 — 더 트렌디 */
+  .filter-chip {
+    padding: 10px 18px !important; font-weight: 600;
+    transition: all .25s var(--ease-out);
+    background: rgba(0,0,0,.04);
+    border-color: transparent !important;
+  }
+  .filter-chip:hover { background: var(--accent); color:#fff; transform: translateY(-2px); }
+  .filter-chip.on {
+    background: var(--fg) !important; color: var(--bg) !important;
+    box-shadow: 0 8px 20px rgba(0,0,0,.18);
+  }
+
+  /* 11) 작업물 카드 — 줌 + 번호 라벨 + 둥근 모서리 */
+  .work-grid { gap: 36px 24px; }
+  .work {
+    transition: transform .4s var(--ease-out);
+  }
+  .work .thumb {
+    border-radius: 14px;
+    box-shadow: var(--shadow-card);
+    aspect-ratio: 4/5;
+    transform-style: preserve-3d;
+    transition: transform .6s var(--ease-out);
+    background-size: cover !important;
+  }
+  .work.featured .thumb { aspect-ratio: 4/3; }
+  .work .thumb::after {
+    content: counter(workCount, decimal-leading-zero);
+    position: absolute; top: 14px; left: 14px;
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    background: rgba(255,255,255,.95); color: var(--fg);
+    padding: 4px 9px; border-radius: 4px;
+    letter-spacing: .1em;
+    z-index: 2;
+  }
+  .work-grid { counter-reset: workCount; }
+  .work { counter-increment: workCount; }
+  .work:hover .thumb { transform: scale(1.025) rotate(.4deg); }
+  .work .thumb::before {
+    background: linear-gradient(135deg, rgba(217,75,43,0) 0%, rgba(217,75,43,.6) 100%) !important;
+    transition: opacity .3s !important; opacity: 0;
+  }
+  .work:hover .thumb::before { opacity: .5 !important; background: rgba(0,0,0,.0) !important; }
+  .work .thumb .overlay { padding: 18px !important; font-weight: 700; }
+  .work h3 {
+    transition: color .25s, transform .3s var(--ease-out);
+    margin-top: 10px;
+  }
+  .work:hover h3 { color: var(--accent); transform: translateX(4px); }
+  .work .cat { font-weight: 700; }
+
+  /* 12) 타임라인 — 좌측 연결선 + 호버 효과 */
+  .timeline { position: relative; }
+  .timeline::before {
+    content:''; position:absolute; left: 49px; top: 20px; bottom: 20px;
+    width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent3), var(--accent2));
+    border-radius: 1px; opacity: .35;
+  }
+  .tl-row { padding: 32px 0 32px 24px !important; transition: transform .3s var(--ease-out); }
+  .tl-row:hover { transform: translateX(8px); }
+  .tl-row::before {
+    content:''; position:absolute; left: 41px; top: 40px;
+    width: 18px; height: 18px; background: var(--bg);
+    border: 3px solid var(--accent); border-radius: 50%;
+    transition: transform .3s var(--ease-bouncy), background .3s;
+  }
+  .tl-row:hover::before { transform: scale(1.4); background: var(--accent); }
+  .tl-year {
+    font-size: 38px !important; font-weight: 400;
+  }
+  .tl-content h5 { font-size: 18px !important; }
+
+  /* 13) CTA — 떠있는 형태 + 글로우 */
+  .cta {
+    margin: 0 28px 28px; border-radius: 24px;
+    background: linear-gradient(135deg, #0f0f0e 0%, #1a1a18 100%);
+    box-shadow: var(--shadow-soft);
+    padding: 140px 28px;
+  }
+  .cta::after {
+    content:''; position:absolute; top: 30%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: .4; pointer-events:none;
+    animation: float 9s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translate(0,0); }
+    50% { transform: translate(-30px, 20px); }
+  }
+  .cta h2 em { background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; color: transparent; }
+  .cta-btn {
+    background: var(--accent); color: #fff !important; border-color: var(--accent) !important;
+    padding: 22px 48px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 12px 30px rgba(217,75,43,.5);
+    transition: all .3s var(--ease-out);
+  }
+  .cta-btn:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 20px 40px rgba(217,75,43,.65); }
+
+  /* 14) 푸터 */
+  footer { background: var(--fg); color: rgba(255,255,255,.65); padding: 80px 28px 28px; }
+  .foot-top h5 { color:#fff !important; }
+  .foot-brand { color:#fff !important; }
+  .foot-top a:hover { color: var(--accent3); }
+
+  /* 15) 떠있는 알약 네비 (스크롤 시 등장) */
+  #pillNav {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(120%);
+    display: flex; gap: 4px; padding: 6px;
+    background: rgba(15,15,14,.85); backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 999px; z-index: 50;
+    transition: transform .5s var(--ease-out);
+    box-shadow: 0 16px 50px rgba(0,0,0,.3);
+  }
+  #pillNav.show { transform: translateX(-50%) translateY(0); }
+  #pillNav a {
+    padding: 10px 18px; color: rgba(255,255,255,.7);
+    font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; border-radius: 999px;
+    transition: all .25s;
+  }
+  #pillNav a:hover, #pillNav a.active { background: var(--accent); color:#fff; }
+  @media (max-width: 600px) { #pillNav a { padding: 8px 12px; font-size: 10px; } }
+</style>
+</head>
+<body>
+
+<!-- 트렌디 UI 요소 -->
+<div id="scrollProgress"></div>
+<div id="cursorBlob"></div>
+<nav id="pillNav">
+  <a href="#about">About</a>
+  <a href="#services">Services</a>
+  <a href="#works">Works</a>
+  <a href="#journey">Journey</a>
+  <a href="#contact">Contact</a>
+</nav>
+
+<!-- 샘플 배너 (Supabase 미설정 시) -->
+<div id="sampleBanner" style="display:none; padding:10px 20px; background:#fef3c7; color:#78350f; font-family:var(--mono); font-size:11px; letter-spacing:.05em; text-align:center; border-bottom:1px solid #d4a44b;">
+  <span data-i18n-html="sample_banner">📦 <b>샘플 콘텐츠</b>가 표시되고 있습니다 — Supabase 키를 설정하고 sample-data.sql을 실행하면 실제 콘텐츠가 표시됩니다.</span>
+  <a href="admin.html" style="margin-left:10px; color:var(--accent); text-decoration:underline;" data-i18n="sample_cta">관리자 페이지 →</a>
+</div>
+
+<!-- 상단 유틸 -->
+<div class="top-bar">
+  <div><span class="status-dot"></span><span id="statusText" data-i18n="status_open">OPEN FOR NEW PROJECTS</span></div>
+  <div class="util">
+    <a href="#" id="btnLangToggle" data-i18n="lang_toggle" title="Switch language">🌐 ENGLISH</a>
+    <a href="#" id="btnOpenInquiry" data-i18n="inquiry">문의하기</a>
+    <a href="#" id="btnLookupInquiry" data-i18n="my_inquiry">내 문의</a>
+    <a href="#" id="btnAdminToggle" data-i18n="admin">관리자</a>
+  </div>
+</div>
+
+<!-- 관리자 모드 바 -->
+<div id="adminBar" style="display:none; padding:10px 20px; background:#0f0f0e; color:#fff; font-family:var(--mono); font-size:11px; letter-spacing:.05em; text-align:center; border-bottom:1px solid var(--accent);">
+  <span data-i18n-html="admin_bar">🔧 <b>관리자 모드</b> · 각 섹션의 ✎ 버튼으로 편집하세요</span>
+  <a href="admin.html" target="_blank" style="margin-left:14px; color:var(--accent); text-decoration:underline;" data-i18n="admin_advanced">고급 편집(카테고리·갤러리·백업) ↗</a>
+  <button id="btnExitAdmin" style="margin-left:14px; padding:4px 12px; background:transparent; border:1px solid #fff; color:#fff; font-family:var(--mono); font-size:10px; letter-spacing:.1em; cursor:pointer;" data-i18n="admin_exit_btn">종료</button>
+</div>
+
+<!-- 관리자 비밀번호 입력 모달 -->
+<div class="iq-bg" id="admPwBg">
+  <div class="iq-modal" style="max-width:380px;">
+    <button class="iq-close" id="admPwClose" aria-label="close">✕</button>
+    <h3 style="margin:0 0 8px; font-family:var(--serif); font-style:italic; font-size:24px;" data-i18n="adm_pw_title">관리자 모드 진입</h3>
+    <p class="iq-help" data-i18n="adm_pw_help">관리자 비밀번호를 입력하면 각 섹션을 직접 편집할 수 있습니다. (기본: mantra2025)</p>
+    <div class="iq-field"><label data-i18n="adm_pw_label">비밀번호</label><input id="admPwInput" type="password"></div>
+    <div id="admPwMsg"></div>
+    <div class="iq-actions">
+      <button class="iq-btn" type="button" id="admPwCancel" data-i18n="iq_close">닫기</button>
+      <button class="iq-btn iq-btn-primary" type="button" id="admPwGo" data-i18n="adm_pw_go">진입</button>
+    </div>
+  </div>
+</div>
+
+<!-- 인라인 편집 모달 (단일, 동적 생성) -->
+<div class="iq-bg" id="edBg">
+  <div class="iq-modal" style="max-width:680px;">
+    <button class="iq-close" id="edClose" aria-label="close">✕</button>
+    <h3 id="edTitle" style="margin:0 0 14px; font-family:var(--serif); font-style:italic; font-size:24px;">편집</h3>
+    <div id="edFields"></div>
+    <div id="edMsg"></div>
+    <div class="iq-actions">
+      <button class="iq-btn iq-btn-danger" type="button" id="edDelete" style="display:none;" data-i18n="ed_delete">삭제</button>
+      <div style="flex:1"></div>
+      <button class="iq-btn" type="button" id="edCancel" data-i18n="iq_close">닫기</button>
+      <button class="iq-btn iq-btn-primary" type="button" id="edSave" data-i18n="ed_save">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <button class="icon-btn" id="btnOpenAside" aria-label="메뉴">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+    <a class="logo" href="#top" id="siteLogo">Mantra Studio</a>
+    <div class="header-right">
+      <a href="#works" class="icon-btn" aria-label="Works">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>
+      </a>
+      <a href="#contact" class="icon-btn" aria-label="Contact">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16v12H4z"/><path d="M4 6l8 7 8-7"/></svg>
+      </a>
+    </div>
+  </div>
+  <nav class="nav">
+    <a href="#about" class="dot">About</a>
+    <a href="#services">Services</a>
+    <a href="#works">Works</a>
+    <a href="#journey">Journey</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- 사이드 드로어 -->
+<div class="backdrop" id="backdrop"></div>
+<aside class="aside" id="aside">
+  <button class="aside-close" id="btnCloseAside">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5l14 14M19 5L5 19"/></svg>
+  </button>
+  <div class="aside-logo" id="asideLogo">Mantra Studio</div>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#works">Works</a>
+    <a href="#journey">Journey</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <div class="aside-foot">© MANTRA STUDIO</div>
+</aside>
+
+<!-- 히어로 -->
+<section class="hero" id="top" data-editable>
+  <button class="ed-btn" data-edit="hero" title="히어로 편집">✎</button>
+  <div class="hero-text">
+    <div class="hero-eyebrow">INDEPENDENT STUDIO · EST. 2024</div>
+    <h1 class="hero-headline" id="heroHeadline">We make bold<br><em>stories &amp; tools.</em></h1>
+    <p class="hero-subline" id="heroSubline">이야기와 기술이 만나는 자리에서, 작고 단단한 것들을 만듭니다.</p>
+    <div class="hero-meta">
+      <dl><dt>Based in</dt><dd id="heroBase">Jeonju, KR</dd></dl>
+      <dl><dt>Founded</dt><dd id="heroFounded">2024</dd></dl>
+      <dl><dt>Status</dt><dd><em style="font-family:var(--serif); font-style:italic; color:var(--accent);">Available</em></dd></dl>
+    </div>
+  </div>
+  <div class="hero-visual" id="heroVisual" data-label="STUDIO · 2025"></div>
+</section>
+
+<!-- 티커 -->
+<div class="ticker">
+  <div class="ticker-track" id="ticker">
+    <span>WEBTOON</span><span>AI TOOLS</span><span>BRAND DESIGN</span><span>INTERACTIVE</span>
+    <span>STORYTELLING</span><span>INDIE PRODUCTS</span><span>EDUCATION</span>
+    <span>WEBTOON</span><span>AI TOOLS</span><span>BRAND DESIGN</span><span>INTERACTIVE</span>
+    <span>STORYTELLING</span><span>INDIE PRODUCTS</span><span>EDUCATION</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="blk" id="about" data-editable>
+  <button class="ed-btn" data-edit="about" title="ABOUT 편집">✎</button>
+  <div class="blk-head reveal">
+    <span class="blk-num">01 / ABOUT</span>
+    <h2 class="blk-title">About the <em>studio</em></h2>
+    <span class="blk-meta">Who we are</span>
+  </div>
+  <div class="about-grid">
+    <div class="left reveal">
+      <img id="aboutImage" src="" alt="" onerror="this.style.background='var(--panel)'; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 4 5%22><rect width=%224%22 height=%225%22 fill=%22%23ebe8e0%22/></svg>'">
+    </div>
+    <div class="right reveal" id="aboutBody">
+      <p>만트라 스튜디오는 웹툰 작가이자 개발자인 릴매(백진우)의 1인 창작 스튜디오입니다.</p>
+      <p>이야기, 이미지, 코드가 만나는 지점에서 브랜드와 도구를 만듭니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="blk" id="services">
+  <div class="blk-head reveal">
+    <span class="blk-num">02 / SERVICES</span>
+    <h2 class="blk-title">What we <em>do</em></h2>
+    <span class="blk-meta">Areas of practice</span>
+  </div>
+  <div class="services" id="servicesGrid">
+    <!-- 동적 렌더 -->
+  </div>
+  <div style="text-align:center;"><button class="ed-add" data-add="service">＋ 서비스 추가</button></div>
+</section>
+
+<!-- WORKS -->
+<section class="blk" id="works">
+  <div class="blk-head reveal">
+    <span class="blk-num">03 / WORKS</span>
+    <h2 class="blk-title">Selected <em>works</em></h2>
+    <span class="blk-meta" id="worksCount">— projects</span>
+  </div>
+  <div class="filters reveal" id="filters"></div>
+  <div class="work-grid" id="workGrid"></div>
+  <div style="text-align:center;"><button class="ed-add" data-add="project">＋ 프로젝트 추가</button></div>
+</section>
+
+<!-- JOURNEY -->
+<section class="blk" id="journey">
+  <div class="blk-head reveal">
+    <span class="blk-num">04 / JOURNEY</span>
+    <h2 class="blk-title">The <em>journey</em></h2>
+    <span class="blk-meta">Milestones</span>
+  </div>
+  <div class="timeline" id="timeline"></div>
+  <div style="text-align:center;"><button class="ed-add" data-add="timeline">＋ 타임라인 항목 추가</button></div>
+</section>
+
+<!-- CONTACT CTA -->
+<section class="cta" id="contact" data-editable>
+  <button class="ed-btn" data-edit="contact" title="연락처/소셜 편집">✎</button>
+  <div class="cta-eyebrow">LET'S COLLABORATE</div>
+  <h2>Got an idea<br>worth making <em>bold</em>?</h2>
+  <a class="cta-btn" id="ctaBtn" href="mailto:hello@mantrastudio.kr">START A CONVERSATION</a>
+</section>
+
+<!-- 푸터 -->
+<footer>
+  <div class="foot-top">
+    <div>
+      <div class="foot-brand" id="footBrand">Mantra Studio</div>
+      <p style="font-family:var(--sans); margin-top:14px; line-height:1.7;" id="footDesc">전주 기반 1인 창작 스튜디오</p>
+    </div>
+    <div>
+      <h5>NAV</h5>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#works">Works</a></li>
+        <li><a href="#journey">Journey</a></li>
+      </ul>
+    </div>
+    <div>
+      <h5>CONTACT</h5>
+      <ul id="footContact"></ul>
+    </div>
+    <div>
+      <h5>SOCIAL</h5>
+      <ul id="footSocial"></ul>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span id="footCopyright">© MANTRA STUDIO. ALL RIGHTS RESERVED.</span>
+    <span>CRAFTED IN JEONJU</span>
+  </div>
+</footer>
+
+<!-- 문의 모달 (비밀글) -->
+<div class="iq-bg" id="iqBackdrop">
+  <div class="iq-modal">
+    <button class="iq-close" id="iqClose" aria-label="close">✕</button>
+    <div class="iq-tabs">
+      <button class="iq-tab active" type="button" data-iq-tab="write" data-i18n="iq_title_write">새 문의 작성</button>
+      <button class="iq-tab" type="button" data-iq-tab="lookup" data-i18n="iq_title_lookup">내 문의 확인 / 수정</button>
+    </div>
+
+    <!-- WRITE -->
+    <div class="iq-pane" data-iq-pane="write">
+      <p class="iq-help" data-i18n-html="iq_help_write">
+        보내신 문의는 <b>비밀글</b>로 등록되어 관리자만 확인합니다.
+        등록 후 발급되는 <b>문의 번호</b>와 직접 설정하신 <b>비밀번호</b>로 본인 글을 다시 조회·수정·삭제하실 수 있습니다.
+      </p>
+      <div class="iq-field"><label data-i18n="iq_label_title">제목</label><input id="iqTitle" maxlength="120" data-i18n-ph="iq_ph_title" placeholder="문의 제목"></div>
+      <div class="iq-field"><label data-i18n="iq_label_body">내용</label><textarea id="iqBody" data-i18n-ph="iq_ph_body" placeholder="문의 내용을 자유롭게 적어주세요."></textarea></div>
+      <div class="iq-field"><label data-i18n="iq_label_contact">연락처 (이메일·전화 등, 선택)</label><input id="iqContact" maxlength="120" data-i18n-ph="iq_ph_contact" placeholder="회신 받으실 이메일 또는 전화"></div>
+      <div class="iq-field"><label data-i18n="iq_label_pw">수정용 비밀번호 (4자 이상)</label><input id="iqPw" type="password" minlength="4" data-i18n-ph="iq_ph_pw" placeholder="본인 글 확인·수정에 사용됩니다"></div>
+      <div id="iqWriteMsg"></div>
+      <div class="iq-actions">
+        <button class="iq-btn" type="button" id="iqCancelWrite" data-i18n="iq_close">닫기</button>
+        <button class="iq-btn iq-btn-primary" type="button" id="iqSubmit" data-i18n="iq_submit">등록</button>
+      </div>
+    </div>
+
+    <!-- LOOKUP -->
+    <div class="iq-pane" data-iq-pane="lookup" style="display:none;">
+      <div data-iq-stage="search">
+        <p class="iq-help" data-i18n="iq_lookup_help">문의 번호와 본인이 설정한 비밀번호를 입력하세요.</p>
+        <div class="iq-field"><label data-i18n="iq_lookup_id">문의 번호</label><input id="iqLkId" type="number" min="1" data-i18n-ph="iq_lookup_id_ph" placeholder="등록 시 발급받은 번호"></div>
+        <div class="iq-field"><label data-i18n="iq_lookup_pw">비밀번호</label><input id="iqLkPw" type="password"></div>
+        <div id="iqLookupMsg"></div>
+        <div class="iq-actions">
+          <button class="iq-btn" type="button" id="iqCancelLookup" data-i18n="iq_close">닫기</button>
+          <button class="iq-btn iq-btn-primary" type="button" id="iqLookupBtn" data-i18n="iq_lookup">조회</button>
+        </div>
+      </div>
+      <div data-iq-stage="edit" style="display:none;">
+        <p class="iq-help"><span data-i18n="iq_status">상태</span>: <b id="iqEdStatus">—</b> · <span data-i18n="iq_created">등록일</span>: <span id="iqEdCreated">—</span></p>
+        <div class="iq-field"><label data-i18n="iq_label_title">제목</label><input id="iqEdTitle"></div>
+        <div class="iq-field"><label data-i18n="iq_label_body">내용</label><textarea id="iqEdBody"></textarea></div>
+        <div class="iq-field"><label data-i18n="iq_label_contact">연락처</label><input id="iqEdContact"></div>
+        <div id="iqEditMsg"></div>
+        <div class="iq-actions">
+          <button class="iq-btn iq-btn-danger" type="button" id="iqEdDelete" data-i18n="iq_delete">삭제</button>
+          <div style="flex:1"></div>
+          <button class="iq-btn" type="button" id="iqEdBack" data-i18n="iq_back">뒤로</button>
+          <button class="iq-btn iq-btn-primary" type="button" id="iqEdSave" data-i18n="iq_save">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 프로젝트 상세 모달 -->
+<div class="modal-bg" id="projectModal">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px; height:16px;"><path d="M5 5l14 14M19 5L5 19"/></svg>
+    </button>
+    <div class="modal-cover" id="modalCover"></div>
+    <div class="modal-body">
+      <div class="modal-cat" id="modalCat"></div>
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <p class="modal-sub" id="modalSub"></p>
+      <dl class="modal-meta">
+        <div><dt>YEAR</dt><dd id="modalYear">—</dd></div>
+        <div><dt>CLIENT</dt><dd id="modalClient">—</dd></div>
+        <div><dt>ROLE</dt><dd id="modalRole">—</dd></div>
+        <div><dt>STACK</dt><dd id="modalTech">—</dd></div>
+      </dl>
+      <div class="modal-desc" id="modalDesc"></div>
+      <div class="modal-gallery" id="modalGallery"></div>
+      <a class="modal-link" id="modalLink" target="_blank" rel="noopener" style="display:none;"></a>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ================== Supabase 설정 ==================
+  const SUPABASE_URL = 'https://cxuhyaouqtnnebijuxcp.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4dWh5YW91cXRubmViaWp1eGNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzQ0MDMsImV4cCI6MjA5Mjg1MDQwM30.pfoDUS8GIHIMKGVz6wN5plp6DoWrcA--NXB1T39abRI';
+  const configured = !SUPABASE_URL.includes('YOUR-PROJECT');
+
+  let supabase = null;
+  if (configured) {
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } else {
+    // 샘플 모드 배너 노출
+    const sb = document.getElementById('sampleBanner');
+    if (sb) sb.style.display = 'block';
+  }
+
+  // ================== 유틸 ==================
+  const $ = (s,p=document) => p.querySelector(s);
+  const $$ = (s,p=document) => Array.from(p.querySelectorAll(s));
+  const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const nl2br = s => esc(s).replace(/\n/g, '<br>');
+  const nl2p = s => esc(s).split(/\n\s*\n/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+
+  // ================== 다국어(i18n) ==================
+  const LANG_KEY = 'mantra_lang';
+  let CURRENT_LANG = (localStorage.getItem(LANG_KEY) === 'en') ? 'en' : 'ko';
+  const I18N = {
+    ko: {
+      lang_toggle: '🌐 ENGLISH',
+      status_open: 'OPEN FOR NEW PROJECTS',
+      admin: '관리자',
+      admin_bar: '🔧 <b>관리자 모드</b> · 각 섹션의 ✎ 버튼으로 편집하세요',
+      admin_advanced: '고급 편집(카테고리·갤러리·백업) ↗',
+      admin_exit_btn: '종료',
+      adm_pw_title: '관리자 모드 진입',
+      adm_pw_help: '관리자 비밀번호를 입력하면 각 섹션을 직접 편집할 수 있습니다. (기본: mantra2025)',
+      adm_pw_label: '비밀번호',
+      adm_pw_go: '진입',
+      ed_save: '저장', ed_delete: '삭제',
+      inquiry: '문의하기',
+      my_inquiry: '내 문의',
+      sample_banner: '📦 <b>샘플 콘텐츠</b>가 표시되고 있습니다 — Supabase 키를 설정하고 sample-data.sql을 실행하면 실제 콘텐츠가 표시됩니다.',
+      sample_cta: '관리자 페이지 →',
+      iq_title_write: '새 문의 작성',
+      iq_title_lookup: '내 문의 확인 / 수정',
+      iq_help_write: '보내신 문의는 <b>비밀글</b>로 등록되어 관리자만 확인합니다. 등록 후 발급되는 <b>문의 번호</b>와 직접 설정하신 <b>비밀번호</b>로 본인 글을 다시 조회·수정·삭제하실 수 있습니다.',
+      iq_label_title: '제목', iq_label_body: '내용', iq_label_contact: '연락처 (이메일·전화 등, 선택)', iq_label_pw: '수정용 비밀번호 (4자 이상)',
+      iq_ph_title: '문의 제목', iq_ph_body: '문의 내용을 자유롭게 적어주세요.', iq_ph_contact: '회신 받으실 이메일 또는 전화', iq_ph_pw: '본인 글 확인·수정에 사용됩니다',
+      iq_close: '닫기', iq_submit: '등록', iq_lookup: '조회', iq_save: '저장', iq_delete: '삭제', iq_back: '뒤로',
+      iq_lookup_help: '문의 번호와 본인이 설정한 비밀번호를 입력하세요.',
+      iq_lookup_id: '문의 번호', iq_lookup_id_ph: '등록 시 발급받은 번호', iq_lookup_pw: '비밀번호',
+      iq_status: '상태', iq_created: '등록일',
+      iq_ok_submit: '등록 완료! 아래 문의 번호와 본인이 입력한 비밀번호를 꼭 기억해 주세요.',
+      iq_err_required_id: '문의 번호를 입력해 주세요',
+      iq_err_no_match: '문의 번호 또는 비밀번호가 일치하지 않습니다',
+      iq_confirm_delete: '정말 삭제하시겠습니까?',
+      iq_done_delete: '삭제되었습니다',
+      iq_done_save: '수정되었습니다',
+      iq_status_read: '확인됨', iq_status_unread: '미확인',
+    },
+    en: {
+      lang_toggle: '🌐 한국어',
+      status_open: 'OPEN FOR NEW PROJECTS',
+      admin: 'ADMIN',
+      admin_bar: '🔧 <b>Admin mode</b> · use the ✎ button on each section to edit',
+      admin_advanced: 'Advanced editor (categories · gallery · backup) ↗',
+      admin_exit_btn: 'Exit',
+      adm_pw_title: 'Enter admin mode',
+      adm_pw_help: 'Enter the admin password to edit each section inline. (default: mantra2025)',
+      adm_pw_label: 'Password',
+      adm_pw_go: 'Enter',
+      ed_save: 'Save', ed_delete: 'Delete',
+      inquiry: 'CONTACT',
+      my_inquiry: 'MY INQUIRY',
+      sample_banner: '📦 <b>Sample content</b> is showing — set the Supabase key and run sample-data.sql to load real content.',
+      sample_cta: 'Open admin →',
+      iq_title_write: 'New Inquiry',
+      iq_title_lookup: 'View / Edit My Inquiry',
+      iq_help_write: 'Your inquiry is registered as a <b>private post</b> visible only to the admin. Use the <b>inquiry number</b> issued and the <b>password</b> you set to view, edit or delete your post later.',
+      iq_label_title: 'Title', iq_label_body: 'Body', iq_label_contact: 'Contact (email or phone, optional)', iq_label_pw: 'Password (4+ chars)',
+      iq_ph_title: 'Inquiry title', iq_ph_body: 'Write your inquiry freely.', iq_ph_contact: 'Email or phone for reply', iq_ph_pw: 'Used to view/edit your post',
+      iq_close: 'Close', iq_submit: 'Submit', iq_lookup: 'Look up', iq_save: 'Save', iq_delete: 'Delete', iq_back: 'Back',
+      iq_lookup_help: 'Enter your inquiry number and the password you set.',
+      iq_lookup_id: 'Inquiry No.', iq_lookup_id_ph: 'The number issued at submission', iq_lookup_pw: 'Password',
+      iq_status: 'Status', iq_created: 'Created',
+      iq_ok_submit: 'Submitted! Please remember the inquiry number and your password below.',
+      iq_err_required_id: 'Please enter the inquiry number',
+      iq_err_no_match: 'Inquiry number or password does not match',
+      iq_confirm_delete: 'Really delete?',
+      iq_done_delete: 'Deleted',
+      iq_done_save: 'Saved',
+      iq_status_read: 'Read', iq_status_unread: 'Unread',
+    }
+  };
+  function t(k){ return I18N[CURRENT_LANG][k] ?? I18N.ko[k] ?? k; }
+  function pickLang(obj, base){
+    if (!obj) return '';
+    if (CURRENT_LANG === 'en') return obj[base+'_en'] || obj[base] || '';
+    return obj[base] || '';
+  }
+  function applyStaticI18n(){
+    document.documentElement.lang = (CURRENT_LANG === 'en') ? 'en' : 'ko';
+    document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.dataset.i18n));
+    document.querySelectorAll('[data-i18n-html]').forEach(el => el.innerHTML = t(el.dataset.i18nHtml));
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
+  }
+
+  // ================== 드로어 ==================
+  const aside = $('#aside'), backdrop = $('#backdrop');
+  $('#btnOpenAside').onclick = () => { aside.classList.add('open'); backdrop.classList.add('on'); };
+  $('#btnCloseAside').onclick = () => { aside.classList.remove('open'); backdrop.classList.remove('on'); };
+  backdrop.onclick = () => { aside.classList.remove('open'); backdrop.classList.remove('on'); };
+  $$('.aside nav a').forEach(a => a.onclick = () => { aside.classList.remove('open'); backdrop.classList.remove('on'); });
+
+  // ================== 데이터 fetch ==================
+  async function fetchAll() {
+    if (!configured) return defaults();
+    const [settings, cats, projects, services, timeline] = await Promise.all([
+      supabase.from('studio_settings').select('*').eq('id',1).single(),
+      supabase.from('categories').select('*').order('sort_order'),
+      supabase.from('projects').select('*, categories(slug,label)').eq('is_visible', true).order('sort_order'),
+      supabase.from('services').select('*').eq('is_visible', true).order('sort_order'),
+      supabase.from('timeline_entries').select('*').eq('is_visible', true).order('sort_order'),
+    ]);
+    return {
+      settings: settings.data || defaults().settings,
+      categories: cats.data || [],
+      projects: projects.data || [],
+      services: services.data || [],
+      timeline: timeline.data || [],
+    };
+  }
+
+  function defaults() {
+    return {
+      settings: {
+        studio_name: '만트라 스튜디오', studio_tagline: 'MANTRA STUDIO',
+        hero_headline: 'We make bold\nstories & tools.',
+        hero_subline: '이야기와 기술이 만나는 자리에서, 작고 단단한 것들을 만듭니다.',
+        about_body: '만트라 스튜디오는 웹툰 작가이자 개발자인 릴매(백진우)의 1인 창작 스튜디오입니다.\n\n이야기, 이미지, 코드가 만나는 지점에서 브랜드와 도구를 만듭니다. 크기가 아닌 밀도로 승부하며, 한 번의 좋은 선택이 열 개의 평범함을 이긴다고 믿습니다.',
+        contact_email: 'hello@mantrastudio.kr',
+        contact_location: '전주, 대한민국',
+        footer_copyright: '© MANTRA STUDIO. ALL RIGHTS RESERVED.',
+        seo_description: '전주 기반 1인 창작 스튜디오',
+        theme_bg:'#f5f3ee', theme_fg:'#111111', theme_accent:'#d94b2b',
+      },
+      categories: [
+        { id:'c1', slug:'all', label:'ALL', sort_order:0 },
+        { id:'c2', slug:'webtoon', label:'WEBTOON', sort_order:1 },
+        { id:'c3', slug:'product', label:'PRODUCT', sort_order:2 },
+        { id:'c4', slug:'service', label:'SERVICE', sort_order:3 },
+      ],
+      projects: [
+        { id:'p1', title:'루갈', subtitle:'Action Webtoon · Serialized',
+          categories:{slug:'webtoon',label:'WEBTOON'},
+          description:'KakaoPage/네이버 시리즈에 연재된 액션 웹툰. OCN 드라마 및 넷플릭스로 영상화되었습니다.',
+          year:'2018–2021', client:'KakaoPage · Netflix', role:'Story · Art',
+          tech:'Clip Studio · Photoshop',
+          thumbnail_url:'https://images.unsplash.com/photo-1618329027137-ad0aa69f93df?w=900',
+          is_featured:true, gallery:[], link_url:'#', link_label:'작품 보기' },
+        { id:'p2', title:'만트라 코파일럿', subtitle:'AI Writing Assistant',
+          categories:{slug:'product',label:'PRODUCT'},
+          description:'웹툰·웹소설 작가를 위한 AI 창작 어시스턴트. 이야기 컨텍스트를 세션 너머로 기억합니다.',
+          year:'2025', client:'Mantra Studio', role:'Product · Development',
+          tech:'Cloudflare Pages · Supabase · Claude API',
+          thumbnail_url:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900',
+          is_featured:false, gallery:[], link_url:'#', link_label:'Visit' },
+        { id:'p3', title:'운명의 거울', subtitle:'Fortune Mini App',
+          categories:{slug:'product',label:'PRODUCT'},
+          description:'토스 플랫폼 위에서 동작하는 사주 기반 운세 미니앱. AI 이미지 생성과 결제 연동.',
+          year:'2025', client:'Toss · 앱인토스', role:'Product · Development',
+          tech:'Cloudflare Functions · Gemini · Toss Pay',
+          thumbnail_url:'https://images.unsplash.com/photo-1502136969935-8d8eef54d77b?w=900',
+          is_featured:false, gallery:[], link_url:'#', link_label:'Visit' },
+        { id:'p4', title:'귀신들린 그래플러', subtitle:'Upcoming Webtoon',
+          categories:{slug:'webtoon',label:'WEBTOON'},
+          description:'피코마에서 런칭 예정인 신작 웹툰. 70컷/화 포맷, 장르 혼합.',
+          year:'2025–', client:'Piccoma', role:'Story · Art',
+          tech:'Clip Studio',
+          thumbnail_url:'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=900',
+          is_featured:true, gallery:[], link_url:'#', link_label:'Preview' },
+        { id:'p5', title:'만트라 아트', subtitle:'Art Psychology Analysis',
+          categories:{slug:'service',label:'SERVICE'},
+          description:'그림 심리 분석 웹 서비스. 4개 언어 지원.',
+          year:'2025', client:'Mantra Studio', role:'Product',
+          tech:'Cloudflare · Claude API',
+          thumbnail_url:'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=900',
+          is_featured:false, gallery:[], link_url:'#', link_label:'Visit' },
+        { id:'p6', title:'캐릭터 아트 스튜디오', subtitle:'Class Tool',
+          categories:{slug:'service',label:'SERVICE'},
+          description:'수업 현장용 캐릭터 생성 파이프라인. Claude 분석 → Gemini 생성 구조.',
+          year:'2025', client:'Kkumiigong', role:'Tool Design',
+          tech:'Cloudflare · Gemini',
+          thumbnail_url:'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900',
+          is_featured:false, gallery:[], link_url:'#', link_label:'Visit' },
+      ],
+      services: [
+        { id:'s1', title:'Webtoon', icon:'W', description:'연재 단위의 장편부터 단편 광고물까지, 완결된 이야기를 책임지고 만듭니다.' },
+        { id:'s2', title:'AI Tool Dev', icon:'A', description:'창작자를 위한 작은 AI 도구를 설계·개발합니다. 아이디어를 쓸 수 있는 제품으로.' },
+        { id:'s3', title:'Brand', icon:'B', description:'작은 브랜드를 위한 아이덴티티, 카피, 비주얼 디렉션.' },
+        { id:'s4', title:'Education', icon:'E', description:'웹툰·디지털 드로잉·AI 창작 관련 워크숍과 강의를 제공합니다.' },
+      ],
+      timeline: [
+        { id:'t1', year:'2018', title:'웹툰 《루갈》 연재 시작', description:'KakaoPage에서 액션 장르 연재, 이후 드라마·영화 판권 계약.' },
+        { id:'t2', year:'2023', title:'만트라 스튜디오 설립', description:'전주를 기반으로 1인 창작 스튜디오 출범.' },
+        { id:'t3', year:'2024', title:'AI 창작 도구 실험 시작', description:'만트라 코파일럿 초기 프로토타입 개발.' },
+        { id:'t4', year:'2025', title:'제품군 확장', description:'운명의 거울, 만트라 아트 등 퍼블릭 제품 런칭.' },
+      ],
+    };
+  }
+
+  // ================== 렌더 ==================
+  let CURRENT_SETTINGS = null;
+  function applySettings(s) {
+    CURRENT_SETTINGS = s;
+    const name = pickLang(s, 'studio_name') || '만트라 스튜디오';
+    const tagline = pickLang(s, 'studio_tagline') || '';
+    document.title = `${name} · ${tagline}`;
+    $('#metaDescription').content = pickLang(s, 'seo_description') || '';
+    if (s.logo_url) $('#siteLogo').innerHTML = `<img src="${s.logo_url}" alt="">`;
+    else $('#siteLogo').innerHTML = name;
+    $('#asideLogo').textContent = name;
+    $('#footBrand').textContent = name;
+    $('#footDesc').textContent = pickLang(s, 'studio_description') || '';
+    $('#footCopyright').textContent = pickLang(s, 'footer_copyright') || '';
+    $('#heroHeadline').innerHTML = formatHeadline(pickLang(s, 'hero_headline') || '');
+    $('#heroSubline').textContent = pickLang(s, 'hero_subline') || '';
+    $('#heroBase').textContent = pickLang(s, 'contact_location') || '—';
+    if (s.hero_image_url) {
+      $('#heroVisual').style.backgroundImage = `url('${s.hero_image_url}')`;
+    } else {
+      $('#heroVisual').style.background = 'linear-gradient(135deg, #2a2a28 0%, #0f0f0e 100%)';
+    }
+    if (s.about_image_url) $('#aboutImage').src = s.about_image_url;
+    if (s.about_body) $('#aboutBody').innerHTML = nl2p(s.about_body);
+
+    // 푸터 연락처
+    const c = $('#footContact'); c.innerHTML = '';
+    if (s.contact_email) c.insertAdjacentHTML('beforeend', `<li><a href="mailto:${s.contact_email}">${esc(s.contact_email)}</a></li>`);
+    if (s.contact_location) c.insertAdjacentHTML('beforeend', `<li>${esc(s.contact_location)}</li>`);
+
+    const social = $('#footSocial'); social.innerHTML = '';
+    if (s.social_instagram) social.insertAdjacentHTML('beforeend', `<li><a href="${s.social_instagram}" target="_blank">Instagram</a></li>`);
+    if (s.social_youtube) social.insertAdjacentHTML('beforeend', `<li><a href="${s.social_youtube}" target="_blank">YouTube</a></li>`);
+    if (s.social_twitter) social.insertAdjacentHTML('beforeend', `<li><a href="${s.social_twitter}" target="_blank">Twitter / X</a></li>`);
+    if (s.social_github) social.insertAdjacentHTML('beforeend', `<li><a href="${s.social_github}" target="_blank">GitHub</a></li>`);
+
+    if (s.contact_email) $('#ctaBtn').href = `mailto:${s.contact_email}`;
+
+    if (s.theme_bg) document.documentElement.style.setProperty('--bg', s.theme_bg);
+    if (s.theme_fg) document.documentElement.style.setProperty('--fg', s.theme_fg);
+    if (s.theme_accent) document.documentElement.style.setProperty('--accent', s.theme_accent);
+  }
+
+  function formatHeadline(txt) {
+    // 두 번째 줄부터 자동으로 italic(em) 처리
+    const lines = esc(txt).split('\n');
+    if (lines.length < 2) return lines[0];
+    return lines[0] + '<br>' + lines.slice(1).map(l => `<em>${l}</em>`).join('<br>');
+  }
+
+  let CURRENT_SERVICES = [];
+  function renderServices(list) {
+    if (list) CURRENT_SERVICES = list;
+    const el = $('#servicesGrid');
+    if (!CURRENT_SERVICES.length) { el.innerHTML = ''; return; }
+    el.innerHTML = CURRENT_SERVICES.map(s => `
+      <div class="service reveal" data-editable>
+        <button class="ed-btn" data-edit="service" data-id="${s.id}" title="편집">✎</button>
+        <div class="icon">${esc(s.icon||'·')}</div>
+        <h4>${esc(pickLang(s,'title')||'')}</h4>
+        <p>${nl2br(pickLang(s,'description')||'')}</p>
+      </div>
+    `).join('');
+  }
+
+  let ALL_PROJECTS = [], ALL_CATS = [], ACTIVE_CAT = 'all';
+  function renderFilters(cats, projects) {
+    if (projects) ALL_PROJECTS = projects;
+    if (cats) ALL_CATS = cats;
+    $('#worksCount').textContent = (CURRENT_LANG==='en' ? `${ALL_PROJECTS.length} projects` : `${ALL_PROJECTS.length} 프로젝트`);
+    const withAll = ALL_CATS.some(c => c.slug === 'all') ? ALL_CATS : [{slug:'all',label:'ALL', label_en:'ALL'}, ...ALL_CATS];
+    const countFor = slug => slug==='all' ? ALL_PROJECTS.length : ALL_PROJECTS.filter(p => (p.categories?.slug||'') === slug).length;
+
+    $('#filters').innerHTML = withAll.map(c => `
+      <button class="filter-chip ${c.slug === ACTIVE_CAT ? 'on':''}" data-slug="${esc(c.slug)}">
+        ${esc(pickLang(c,'label')||c.label||'')}<span class="filter-count">${countFor(c.slug)}</span>
+      </button>
+    `).join('');
+    $$('.filter-chip').forEach(b => b.onclick = () => {
+      ACTIVE_CAT = b.dataset.slug;
+      $$('.filter-chip').forEach(x => x.classList.toggle('on', x===b));
+      renderWorks();
+    });
+    renderWorks();
+  }
+
+  function renderWorks() {
+    const list = ACTIVE_CAT === 'all' ? ALL_PROJECTS
+      : ALL_PROJECTS.filter(p => (p.categories?.slug||'') === ACTIVE_CAT);
+    const el = $('#workGrid');
+    if (!list.length) {
+      const empty = CURRENT_LANG==='en' ? 'No projects in this category yet.' : '이 카테고리에는 아직 프로젝트가 없습니다.';
+      el.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:60px 0; color:var(--muted); font-family:var(--serif); font-style:italic; font-size:22px;">${empty}</div>`;
+      return;
+    }
+    el.innerHTML = list.map((p,i) => {
+      const catLabel = pickLang(p.categories||{}, 'label') || p.categories?.label || '';
+      return `
+      <div class="work reveal ${p.is_featured?'featured':''}" data-id="${p.id}" data-editable>
+        <button class="ed-btn" data-edit="project" data-id="${p.id}" title="편집">✎</button>
+        <div class="thumb" style="background-image:url('${p.thumbnail_url||''}');">
+          <div class="overlay">
+            <span>${esc(catLabel)}</span>
+            <span>VIEW →</span>
+          </div>
+        </div>
+        <div class="cat">${esc(catLabel||'·')}</div>
+        <h3>${esc(pickLang(p,'title')||'')}</h3>
+        <p>${esc(pickLang(p,'subtitle')||'')}</p>
+        <div class="meta-line">
+          ${p.year ? `<span>${esc(p.year)}</span>`:''}
+          ${pickLang(p,'client') ? `<span>${esc(pickLang(p,'client'))}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    // 리빌 재관찰
+    initReveal();
+    // 클릭 → 모달
+    el.querySelectorAll('.work').forEach(w => w.onclick = () => openProject(w.dataset.id));
+  }
+
+  let CURRENT_TIMELINE = [];
+  function renderTimeline(list) {
+    if (list) CURRENT_TIMELINE = list;
+    const el = $('#timeline');
+    if (!CURRENT_TIMELINE.length) {
+      const empty = CURRENT_LANG==='en' ? 'Nothing yet.' : '비어있습니다.';
+      el.innerHTML = `<div style="text-align:center; color:var(--muted); font-style:italic;">${empty}</div>`; return;
+    }
+    el.innerHTML = CURRENT_TIMELINE.map(it => `
+      <div class="tl-row reveal" data-editable>
+        <button class="ed-btn" data-edit="timeline" data-id="${it.id}" title="편집">✎</button>
+        <div class="tl-year">${esc(it.year||'')}</div>
+        <div class="tl-content">
+          <h5>${esc(pickLang(it,'title')||'')}</h5>
+          <p>${nl2br(pickLang(it,'description')||'')}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ================== 프로젝트 상세 모달 ==================
+  function openProject(id) {
+    const p = ALL_PROJECTS.find(x => x.id === id);
+    if (!p) return;
+    $('#modalCover').style.backgroundImage = `url('${p.thumbnail_url||''}')`;
+    $('#modalCat').textContent = pickLang(p.categories||{}, 'label') || p.categories?.label || '';
+    $('#modalTitle').textContent = pickLang(p,'title') || '';
+    $('#modalSub').textContent = pickLang(p,'subtitle') || '';
+    $('#modalYear').textContent = p.year || '—';
+    $('#modalClient').textContent = pickLang(p,'client') || '—';
+    $('#modalRole').textContent = pickLang(p,'role') || '—';
+    $('#modalTech').textContent = pickLang(p,'tech') || '—';
+    $('#modalDesc').innerHTML = nl2p(pickLang(p,'description')||'');
+    const gal = $('#modalGallery');
+    gal.innerHTML = '';
+    const arr = Array.isArray(p.gallery) ? p.gallery : (p.gallery ? JSON.parse(p.gallery) : []);
+    arr.forEach(g => {
+      gal.insertAdjacentHTML('beforeend', `<figure><img src="${g.url||''}" alt="">${g.caption?`<figcaption>${esc(g.caption)}</figcaption>`:''}</figure>`);
+    });
+    const link = $('#modalLink');
+    if (p.link_url) {
+      link.href = p.link_url;
+      const label = pickLang(p,'link_label') || (CURRENT_LANG==='en' ? 'Visit' : '바로가기');
+      link.textContent = label + ' →';
+      link.style.display = 'inline-block';
+    }
+    else link.style.display='none';
+
+    $('#projectModal').classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+  $('#modalClose').onclick = closeProject;
+  $('#projectModal').onclick = e => { if (e.target.id === 'projectModal') closeProject(); };
+  function closeProject() {
+    $('#projectModal').classList.remove('on');
+    document.body.style.overflow = '';
+  }
+
+  // 스크롤 리빌
+  let io;
+  function initReveal() {
+    io?.disconnect();
+    io = new IntersectionObserver(es => {
+      es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); }});
+    }, { threshold:.1 });
+    $$('.reveal').forEach(el => { if (!el.classList.contains('on')) io.observe(el); });
+  }
+
+  // ================== 언어 토글 ==================
+  function reRenderAll() {
+    applyStaticI18n();
+    if (CURRENT_SETTINGS) applySettings(CURRENT_SETTINGS);
+    renderServices();
+    renderFilters();
+    renderTimeline();
+    initReveal();
+  }
+  $('#btnLangToggle').onclick = e => {
+    e.preventDefault();
+    CURRENT_LANG = (CURRENT_LANG === 'en') ? 'ko' : 'en';
+    localStorage.setItem(LANG_KEY, CURRENT_LANG);
+    reRenderAll();
+  };
+
+  // ================== 문의 모달 (비밀글) ==================
+  const iqBg = $('#iqBackdrop');
+  function openInquiry(tab='write'){
+    iqBg.classList.add('on');
+    document.body.style.overflow = 'hidden';
+    switchIqTab(tab);
+    // 작성 폼 초기화
+    if (tab === 'write') {
+      ['iqTitle','iqBody','iqContact','iqPw'].forEach(id => $('#'+id).value = '');
+      $('#iqWriteMsg').innerHTML = '';
+    } else {
+      $('#iqLkId').value = ''; $('#iqLkPw').value = ''; $('#iqLookupMsg').innerHTML = '';
+      switchIqStage('search');
+    }
+  }
+  function closeInquiry(){ iqBg.classList.remove('on'); document.body.style.overflow = ''; }
+  function switchIqTab(name){
+    document.querySelectorAll('[data-iq-tab]').forEach(b => b.classList.toggle('active', b.dataset.iqTab === name));
+    document.querySelectorAll('[data-iq-pane]').forEach(p => p.style.display = (p.dataset.iqPane === name) ? '' : 'none');
+  }
+  function switchIqStage(name){
+    document.querySelectorAll('[data-iq-stage]').forEach(p => p.style.display = (p.dataset.iqStage === name) ? '' : 'none');
+  }
+  function iqMsg(target, html, type='ok'){ $(target).innerHTML = html ? `<div class="iq-msg ${type}">${html}</div>` : ''; }
+
+  $('#btnOpenInquiry').onclick = e => { e.preventDefault(); openInquiry('write'); };
+  $('#btnLookupInquiry').onclick = e => { e.preventDefault(); openInquiry('lookup'); };
+  $('#ctaBtn')?.addEventListener?.('click', e => { /* keep mailto fallback */ });
+  $('#iqClose').onclick = closeInquiry;
+  $('#iqCancelWrite').onclick = closeInquiry;
+  $('#iqCancelLookup').onclick = closeInquiry;
+  iqBg.addEventListener('click', e => { if (e.target === iqBg) closeInquiry(); });
+  document.querySelectorAll('[data-iq-tab]').forEach(b => b.onclick = () => switchIqTab(b.dataset.iqTab));
+
+  $('#iqSubmit').onclick = async () => {
+    const title = $('#iqTitle').value.trim();
+    const body  = $('#iqBody').value.trim();
+    const contact = $('#iqContact').value.trim();
+    const pw    = $('#iqPw').value;
+    if (!title || !body) return iqMsg('#iqWriteMsg', CURRENT_LANG==='en'?'Title and body are required':'제목과 내용은 필수입니다','err');
+    if (!pw || pw.length < 4) return iqMsg('#iqWriteMsg', CURRENT_LANG==='en'?'Password must be 4+ chars':'비밀번호는 4자 이상이어야 합니다','err');
+    if (!configured) return iqMsg('#iqWriteMsg', CURRENT_LANG==='en'?'Supabase not configured':'Supabase가 설정되지 않았습니다','err');
+    try {
+      const { data, error } = await supabase.rpc('submit_inquiry', { p_title: title, p_body: body, p_contact: contact, p_edit_pw: pw });
+      if (error) throw error;
+      const refLabel = CURRENT_LANG==='en' ? 'Inquiry No.' : '문의 번호';
+      iqMsg('#iqWriteMsg', `<div><b>${t('iq_ok_submit')}</b></div><div class="iq-ref">${refLabel} #${data}</div>`, 'ok');
+      ['iqTitle','iqBody','iqContact','iqPw'].forEach(id => $('#'+id).value = '');
+    } catch (err) {
+      iqMsg('#iqWriteMsg', err.message, 'err');
+    }
+  };
+
+  let CURRENT_INQ = null;
+  $('#iqLookupBtn').onclick = async () => {
+    const id = parseInt($('#iqLkId').value, 10);
+    const pw = $('#iqLkPw').value;
+    if (!id || id < 1) return iqMsg('#iqLookupMsg', t('iq_err_required_id'), 'err');
+    if (!configured) return iqMsg('#iqLookupMsg', CURRENT_LANG==='en'?'Supabase not configured':'Supabase가 설정되지 않았습니다','err');
+    try {
+      const { data, error } = await supabase.rpc('verify_inquiry', { p_id: id, p_edit_pw: pw });
+      if (error) throw error;
+      if (!data || !data.length) return iqMsg('#iqLookupMsg', t('iq_err_no_match'), 'err');
+      CURRENT_INQ = { ...data[0], _pw: pw };
+      $('#iqEdTitle').value = CURRENT_INQ.title || '';
+      $('#iqEdBody').value = CURRENT_INQ.body || '';
+      $('#iqEdContact').value = CURRENT_INQ.contact || '';
+      $('#iqEdStatus').textContent = CURRENT_INQ.is_read ? t('iq_status_read') : t('iq_status_unread');
+      $('#iqEdCreated').textContent = new Date(CURRENT_INQ.created_at).toLocaleString();
+      $('#iqEditMsg').innerHTML = '';
+      switchIqStage('edit');
+    } catch (err) {
+      iqMsg('#iqLookupMsg', err.message, 'err');
+    }
+  };
+  $('#iqEdBack').onclick = () => switchIqStage('search');
+  $('#iqEdSave').onclick = async () => {
+    if (!CURRENT_INQ) return;
+    try {
+      const { error } = await supabase.rpc('update_inquiry_by_user', {
+        p_id: CURRENT_INQ.id, p_edit_pw: CURRENT_INQ._pw,
+        p_title: $('#iqEdTitle').value, p_body: $('#iqEdBody').value, p_contact: $('#iqEdContact').value
+      });
+      if (error) throw error;
+      iqMsg('#iqEditMsg', t('iq_done_save'), 'ok');
+    } catch (err) { iqMsg('#iqEditMsg', err.message, 'err'); }
+  };
+  $('#iqEdDelete').onclick = async () => {
+    if (!CURRENT_INQ || !confirm(t('iq_confirm_delete'))) return;
+    try {
+      const { error } = await supabase.rpc('delete_inquiry_by_user', {
+        p_id: CURRENT_INQ.id, p_edit_pw: CURRENT_INQ._pw
+      });
+      if (error) throw error;
+      iqMsg('#iqEditMsg', t('iq_done_delete'), 'ok');
+      CURRENT_INQ = null;
+      setTimeout(() => switchIqStage('search'), 800);
+    } catch (err) { iqMsg('#iqEditMsg', err.message, 'err'); }
+  };
+
+  // ================== 관리자 모드 (비밀번호 기반 인라인 편집) ==================
+  const ADM_KEY = 'mantra_adm_pw';
+  let ADM_PW = sessionStorage.getItem(ADM_KEY) || '';
+
+  function setAdminMode(on) {
+    document.body.classList.toggle('admin-mode', !!on);
+    $('#adminBar').style.display = on ? 'block' : 'none';
+  }
+  // 페이지 진입 시 sessionStorage에 비번이 있으면 자동으로 admin 모드
+  if (ADM_PW && configured) {
+    supabase.rpc('admin_check', { p_admin_pw: ADM_PW }).then(({data, error}) => {
+      if (!error && data === true) setAdminMode(true);
+      else { ADM_PW = ''; sessionStorage.removeItem(ADM_KEY); }
+    });
+  }
+
+  $('#btnAdminToggle').onclick = e => {
+    e.preventDefault();
+    if (ADM_PW) {
+      // 이미 admin 모드 → 종료
+      ADM_PW = ''; sessionStorage.removeItem(ADM_KEY); setAdminMode(false);
+    } else {
+      $('#admPwBg').classList.add('on'); $('#admPwInput').value=''; $('#admPwMsg').innerHTML='';
+      setTimeout(() => $('#admPwInput').focus(), 50);
+    }
+  };
+  $('#btnExitAdmin').onclick = () => {
+    ADM_PW = ''; sessionStorage.removeItem(ADM_KEY); setAdminMode(false);
+  };
+  $('#admPwClose').onclick = $('#admPwCancel').onclick = () => $('#admPwBg').classList.remove('on');
+  $('#admPwBg').addEventListener('click', e => { if (e.target.id === 'admPwBg') $('#admPwBg').classList.remove('on'); });
+  $('#admPwInput').onkeydown = e => { if (e.key === 'Enter') $('#admPwGo').click(); };
+  $('#admPwGo').onclick = async () => {
+    const pw = $('#admPwInput').value;
+    if (!pw) return;
+    if (!configured) { $('#admPwMsg').innerHTML = `<div class="iq-msg err">Supabase가 설정되지 않았습니다</div>`; return; }
+    try {
+      const { data, error } = await supabase.rpc('admin_check', { p_admin_pw: pw });
+      if (error) throw error;
+      if (data !== true) { $('#admPwMsg').innerHTML = `<div class="iq-msg err">비밀번호가 올바르지 않습니다</div>`; return; }
+      ADM_PW = pw; sessionStorage.setItem(ADM_KEY, pw);
+      setAdminMode(true);
+      $('#admPwBg').classList.remove('on');
+    } catch (err) {
+      $('#admPwMsg').innerHTML = `<div class="iq-msg err">${esc(err.message)}</div>`;
+    }
+  };
+
+  // ── 인라인 편집 모달 ──
+  const FORMS = {
+    hero: {
+      title: '히어로 편집',
+      rpc: 'admin_save_settings', isSettings: true,
+      fields: [
+        { k:'hero_headline', label:'헤드라인 (개행 = 두 줄)', type:'textarea' },
+        { k:'hero_subline',  label:'서브라인',                type:'textarea' },
+        { k:'hero_image_url',label:'히어로 이미지 URL',        type:'url', preview:true },
+      ]
+    },
+    about: {
+      title: 'ABOUT 편집',
+      rpc: 'admin_save_settings', isSettings: true,
+      fields: [
+        { k:'about_body',      label:'본문 (빈 줄 = 문단 구분)', type:'textarea', big:true },
+        { k:'about_image_url', label:'어바웃 이미지 URL',         type:'url', preview:true },
+      ]
+    },
+    contact: {
+      title: '연락처 / 소셜 / 푸터',
+      rpc: 'admin_save_settings', isSettings: true,
+      fields: [
+        { k:'contact_email',    label:'이메일',           type:'text' },
+        { k:'contact_location', label:'위치',             type:'text' },
+        { k:'social_instagram', label:'Instagram URL',    type:'url' },
+        { k:'social_youtube',   label:'YouTube URL',      type:'url' },
+        { k:'social_twitter',   label:'Twitter / X URL',  type:'url' },
+        { k:'social_github',    label:'GitHub URL',       type:'url' },
+        { k:'footer_copyright', label:'푸터 카피라이트',  type:'text' },
+      ]
+    },
+    service: {
+      title: '서비스 편집',
+      rpc: 'admin_save_service', delRpc: 'admin_delete_service', table: CURRENT_SERVICES,
+      fields: [
+        { k:'icon',        label:'아이콘 (짧은 글자/이모지)', type:'text' },
+        { k:'title',       label:'제목',                       type:'text' },
+        { k:'description', label:'설명',                       type:'textarea' },
+      ]
+    },
+    project: {
+      title: '프로젝트 편집',
+      rpc: 'admin_save_project', delRpc: 'admin_delete_project',
+      tableRef: () => ALL_PROJECTS,
+      fields: [
+        { k:'title',         label:'제목',                       type:'text' },
+        { k:'subtitle',      label:'부제 (한 줄 설명)',          type:'text' },
+        { k:'description',   label:'설명 (상세 모달)',           type:'textarea', big:true },
+        { k:'category_id',   label:'카테고리',                   type:'select-cat' },
+        { k:'year',          label:'연도',                       type:'text' },
+        { k:'client',        label:'클라이언트',                 type:'text' },
+        { k:'role',          label:'역할',                       type:'text' },
+        { k:'tech',          label:'사용 기술',                  type:'text' },
+        { k:'thumbnail_url', label:'썸네일 URL',                 type:'url', preview:true },
+        { k:'link_label',    label:'외부 링크 라벨',             type:'text' },
+        { k:'link_url',      label:'외부 링크 URL',              type:'url' },
+        { k:'is_featured',   label:'피처드 (큰 카드)',           type:'checkbox' },
+      ]
+    },
+    timeline: {
+      title: '타임라인 항목',
+      rpc: 'admin_save_timeline', delRpc: 'admin_delete_timeline',
+      tableRef: () => CURRENT_TIMELINE,
+      fields: [
+        { k:'year',        label:'연도',  type:'text' },
+        { k:'title',       label:'제목',  type:'text' },
+        { k:'description', label:'설명',  type:'textarea' },
+      ]
+    }
+  };
+
+  let EDITING = null; // { kind, id, def }
+
+  function openEditor(kind, id) {
+    const def = FORMS[kind]; if (!def) return;
+    let row = {};
+    if (def.isSettings) row = CURRENT_SETTINGS || {};
+    else if (id) {
+      const arr = def.tableRef ? def.tableRef() : (def.table || []);
+      row = arr.find(x => String(x.id) === String(id)) || {};
+    }
+    EDITING = { kind, id: id || null, def };
+    $('#edTitle').textContent = def.title + (id ? '' : ' (새로 추가)');
+    $('#edDelete').style.display = (id && def.delRpc) ? 'inline-flex' : 'none';
+    $('#edMsg').innerHTML = '';
+    $('#edFields').innerHTML = def.fields.map(f => fieldHtml(f, row[f.k])).join('');
+    // 이미지 프리뷰 라이브 갱신
+    def.fields.forEach(f => {
+      if (f.preview) {
+        const inp = document.querySelector(`#edFields [name="${f.k}"]`);
+        const pv = document.querySelector(`#edFields [data-preview="${f.k}"]`);
+        if (inp && pv) inp.oninput = () => pv.style.backgroundImage = inp.value ? `url('${inp.value}')` : '';
+      }
+    });
+    $('#edBg').classList.add('on');
+  }
+  function fieldHtml(f, v) {
+    const val = v ?? '';
+    if (f.type === 'textarea') return `<div class="ed-row"><label>${esc(f.label)}</label><textarea name="${f.k}" ${f.big?'style="min-height:140px;"':''}>${esc(val)}</textarea></div>`;
+    if (f.type === 'checkbox') return `<div class="ed-row"><label><input type="checkbox" name="${f.k}" ${val?'checked':''} style="width:auto; margin-right:8px;">${esc(f.label)}</label></div>`;
+    if (f.type === 'select-cat') {
+      const opts = ALL_CATS.filter(c => c.slug !== 'all').map(c => `<option value="${c.id}" ${c.id===val?'selected':''}>${esc(c.label)}</option>`).join('');
+      return `<div class="ed-row"><label>${esc(f.label)}</label><select name="${f.k}"><option value="">(없음)</option>${opts}</select></div>`;
+    }
+    const preview = f.preview ? `<div class="ed-thumb" data-preview="${f.k}" style="${val?`background-image:url('${val}')`:''}"></div>` : '';
+    return `<div class="ed-row"><label>${esc(f.label)}</label><input type="${f.type==='url'?'url':'text'}" name="${f.k}" value="${esc(val)}">${preview}</div>`;
+  }
+  function collectForm() {
+    const out = {};
+    EDITING.def.fields.forEach(f => {
+      const el = document.querySelector(`#edFields [name="${f.k}"]`);
+      if (!el) return;
+      if (f.type === 'checkbox') out[f.k] = el.checked;
+      else out[f.k] = el.value || null;
+    });
+    return out;
+  }
+
+  $('#edClose').onclick = $('#edCancel').onclick = () => $('#edBg').classList.remove('on');
+  $('#edBg').addEventListener('click', e => { if (e.target.id === 'edBg') $('#edBg').classList.remove('on'); });
+
+  $('#edSave').onclick = async () => {
+    if (!EDITING || !ADM_PW) return;
+    const payload = collectForm();
+    try {
+      const args = EDITING.def.isSettings
+        ? { p_admin_pw: ADM_PW, p_data: payload }
+        : { p_admin_pw: ADM_PW, p_id: EDITING.id, p_data: payload };
+      const { error } = await supabase.rpc(EDITING.def.rpc, args);
+      if (error) throw error;
+      $('#edMsg').innerHTML = `<div class="iq-msg ok">저장되었습니다</div>`;
+      // 데이터 다시 fetch & 렌더
+      const data = await fetchAll();
+      applySettings(data.settings);
+      renderServices(data.services);
+      renderFilters(data.categories, data.projects);
+      renderTimeline(data.timeline);
+      applyStaticI18n();
+      initReveal();
+      setTimeout(() => $('#edBg').classList.remove('on'), 600);
+    } catch (err) {
+      $('#edMsg').innerHTML = `<div class="iq-msg err">${esc(err.message)}</div>`;
+    }
+  };
+  $('#edDelete').onclick = async () => {
+    if (!EDITING || !EDITING.id || !EDITING.def.delRpc || !ADM_PW) return;
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    try {
+      const { error } = await supabase.rpc(EDITING.def.delRpc, { p_admin_pw: ADM_PW, p_id: EDITING.id });
+      if (error) throw error;
+      const data = await fetchAll();
+      applySettings(data.settings);
+      renderServices(data.services);
+      renderFilters(data.categories, data.projects);
+      renderTimeline(data.timeline);
+      initReveal();
+      $('#edBg').classList.remove('on');
+    } catch (err) {
+      $('#edMsg').innerHTML = `<div class="iq-msg err">${esc(err.message)}</div>`;
+    }
+  };
+
+  // ✎ 버튼 클릭 위임 (admin-mode일 때만)
+  document.addEventListener('click', e => {
+    const ed = e.target.closest('.ed-btn');
+    if (ed && document.body.classList.contains('admin-mode')) {
+      e.stopPropagation(); e.preventDefault();
+      openEditor(ed.dataset.edit, ed.dataset.id || null);
+      return;
+    }
+    const add = e.target.closest('.ed-add');
+    if (add && document.body.classList.contains('admin-mode')) {
+      e.stopPropagation(); e.preventDefault();
+      openEditor(add.dataset.add, null);
+    }
+  }, true);
+
+  // ================== 트렌디 인터랙션 ==================
+  // 스크롤 프로그레스 + 헤더 축소 + 떠있는 알약 네비 등장 + 액티브 섹션
+  const _hdr = $('.header');
+  const _prog = $('#scrollProgress');
+  const _pill = $('#pillNav');
+  const _sections = ['about','services','works','journey','contact']
+    .map(id => ({ id, el: document.getElementById(id) }))
+    .filter(s => s.el);
+  function onScroll() {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+    _prog.style.width = pct + '%';
+    _hdr.classList.toggle('scrolled', h.scrollTop > 60);
+    _pill.classList.toggle('show', h.scrollTop > 480);
+    // 액티브 섹션
+    const y = h.scrollTop + window.innerHeight * 0.35;
+    let active = null;
+    for (const s of _sections) {
+      const r = s.el.getBoundingClientRect();
+      const top = r.top + h.scrollTop;
+      if (y >= top) active = s.id;
+    }
+    _pill.querySelectorAll('a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + active));
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // 커스텀 커서 블롭 (데스크탑만)
+  const _blob = $('#cursorBlob');
+  if (window.matchMedia('(hover:hover)').matches) {
+    let bx = 0, by = 0, tx = 0, ty = 0;
+    window.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+    function tick() {
+      bx += (tx - bx) * 0.18; by += (ty - by) * 0.18;
+      _blob.style.transform = `translate(${bx}px, ${by}px) translate(-50%,-50%)`;
+      requestAnimationFrame(tick);
+    }
+    tick();
+    document.addEventListener('mouseover', e => {
+      const t = e.target.closest('a, button, .work, .service, .filter-chip, .ed-btn');
+      _blob.classList.toggle('hover', !!t);
+    });
+  } else {
+    _blob.style.display = 'none';
+  }
+
+  // ================== 실행 ==================
+  try {
+    const data = await fetchAll();
+    applySettings(data.settings);
+    renderServices(data.services);
+    renderFilters(data.categories, data.projects);
+    renderTimeline(data.timeline);
+    applyStaticI18n();
+    initReveal();
+  } catch (e) {
+    console.error(e);
+    document.body.insertAdjacentHTML('afterbegin', `<div style="padding:20px; background:#fee; color:#c00; font-family:monospace; font-size:12px;">데이터 로딩 실패: ${e.message} — Supabase 설정을 확인하세요.</div>`);
+  }
+</script>
+</body>
+</html>
