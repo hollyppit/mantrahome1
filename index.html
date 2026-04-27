@@ -8,16 +8,16 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    --bg: #f5f3ee;
+    --bg: #ffffff;
     --fg: #111111;
     --muted: #747068;
     --line: #1a1a1a;
     --accent: #d94b2b;
-    --panel: #ebe8e0;
+    --panel: #f4f2ed;
     --serif: 'Instrument Serif', 'Noto Serif KR', serif;
     --sans:  'Noto Sans KR', sans-serif;
     --mono:  'JetBrains Mono', monospace;
@@ -65,12 +65,15 @@
   .logo {
     font-family: var(--serif); font-style:italic; font-size: 30px; letter-spacing:-.01em;
     display:flex; align-items:center; gap:8px;
+    cursor: pointer;
   }
   .logo::before {
     content:''; width:10px; height:10px; background: var(--accent);
     border-radius:50%;
   }
-  .logo img { max-height:36px; }
+  .logo:has(img)::before { display: none; }
+  .logo img { max-height: 72px; width: auto; }
+  @media (max-width: 960px) { .logo img { max-height: 52px; } }
   .icon-btn {
     width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
     border-radius:50%; border:1px solid transparent; transition:.2s;
@@ -895,6 +898,207 @@
   }
   #pillNav a:hover, #pillNav a.active { background: var(--accent); color:#fff; }
   @media (max-width: 600px) { #pillNav a { padding: 8px 12px; font-size: 10px; } }
+
+  /* ════════════════════════════════════════════════════════════
+     FUNKY OVERRIDES — 2026 Maximalist
+     - 비비드 팔레트, 디스플레이 폰트 (Bricolage), 스크립트 (Caveat)
+     - 스티커 배지, 웨이브 디바이더, 네오브루탈리스트 버튼
+     - 글리치 hover, 웨이브 언더라인, 회전 카드, 도트/스트라이프 패턴
+     ═══════════════════════════════════════════════════════════ */
+  :root {
+    --funk-pink:    #ff3d8b;
+    --funk-lime:    #c4f439;
+    --funk-purple:  #7c3aed;
+    --funk-cyan:    #06d4ff;
+    --funk-orange:  #ff6a3d;
+    --display: 'Bricolage Grotesque', 'Noto Sans KR', sans-serif;
+    --script:  'Caveat', 'Noto Sans KR', cursive;
+  }
+
+  /* 1) 디스플레이 헤드라인 폰트 교체 + 텍스트 outline 옵션 */
+  .blk-title {
+    font-family: var(--display) !important;
+    font-weight: 800 !important;
+    font-style: normal !important;
+    letter-spacing: -.05em !important;
+  }
+  .blk-title em {
+    font-family: var(--serif) !important; font-style: italic !important; font-weight: 400 !important;
+    color: var(--funk-pink) !important;
+  }
+  /* outlined 글자 옵션 */
+  .blk-title em.outlined {
+    color: transparent !important;
+    -webkit-text-stroke: 2px var(--fg);
+  }
+
+  /* 2) 헤더 nav — 웨이브 언더라인 */
+  .nav a { font-weight: 700; }
+  .nav a::after {
+    content:''; position:absolute; left:0; right:0; bottom:-2px; height: 6px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 6'><path d='M0 3 Q10 0 20 3 T40 3' stroke='%23ff3d8b' stroke-width='2' fill='none'/></svg>");
+    background-repeat: repeat-x; background-size: 16px 6px;
+    transform: scaleX(0); transform-origin: left; transition: transform .3s var(--ease-out);
+  }
+  .nav a:hover::after, .nav a.dot::after { transform: scaleX(1); }
+
+  /* 3) 히어로 — 떠다니는 스티커들 + 글리치 헤드라인 */
+  .hero-headline {
+    font-family: var(--display) !important;
+    font-weight: 800 !important; font-style: normal !important;
+    text-transform: none;
+  }
+  .hero-headline em {
+    font-family: var(--serif) !important; font-weight: 400 !important;
+    background: linear-gradient(135deg, var(--funk-pink) 0%, var(--funk-orange) 50%, var(--funk-purple) 100%) !important;
+    -webkit-background-clip: text !important; background-clip: text !important; color: transparent !important;
+  }
+  .hero-headline:hover em { animation: glitch .35s steps(2) infinite; }
+  @keyframes glitch {
+    0% { text-shadow: 2px 0 var(--funk-cyan), -2px 0 var(--funk-pink); transform: translate(0,0); }
+    50% { text-shadow: -2px 0 var(--funk-cyan), 2px 0 var(--funk-pink); transform: translate(1px,-1px); }
+    100% { text-shadow: 1px 0 var(--funk-pink), -1px 0 var(--funk-cyan); transform: translate(-1px,1px); }
+  }
+
+  /* 4) 펑키 스티커들 (HTML decorations) */
+  .sticker {
+    position: absolute; pointer-events: none; z-index: 4;
+    font-family: var(--script); font-weight: 700; font-size: 26px;
+    color: #fff; padding: 14px 22px; border-radius: 999px;
+    border: 3px solid var(--fg); box-shadow: 5px 5px 0 var(--fg);
+    white-space: nowrap;
+    animation: wobble 4s ease-in-out infinite;
+  }
+  .sticker.s-pink   { background: var(--funk-pink); }
+  .sticker.s-lime   { background: var(--funk-lime); color: var(--fg); }
+  .sticker.s-cyan   { background: var(--funk-cyan); color: var(--fg); }
+  .sticker.s-purple { background: var(--funk-purple); }
+  .sticker.s-orange { background: var(--funk-orange); }
+  @keyframes wobble {
+    0%,100% { transform: rotate(var(--rot, -6deg)) translateY(0); }
+    50% { transform: rotate(calc(var(--rot, -6deg) + 4deg)) translateY(-6px); }
+  }
+
+  /* 5) 웨이브/지그재그 섹션 디바이더 */
+  .blk { border-bottom: 0 !important; position: relative; }
+  .blk::after {
+    content:''; display:block; position:absolute; left:0; right:0; bottom:-1px; height: 24px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 24' preserveAspectRatio='none'><path d='M0 12 Q20 0 40 12 T80 12 V24 H0 Z' fill='%23000'/></svg>");
+    background-repeat: repeat-x; background-size: 80px 24px;
+    opacity: .9;
+  }
+  /* 마지막 블록은 제외 */
+  .blk:last-of-type::after { display: none; }
+
+  /* 6) 섹션 번호 배지 — 라운드 사각형 + 강한 색 */
+  .blk-num {
+    background: var(--funk-lime) !important; color: var(--fg) !important;
+    border: 2px solid var(--fg) !important; font-weight: 700 !important;
+    box-shadow: 4px 4px 0 var(--fg);
+    transform: rotate(-2deg); transform-origin: left;
+    border-radius: 8px !important;
+  }
+
+  /* 7) 서비스 카드 — 컬러 블록 강화 + 강한 보더 */
+  .service { border: 2px solid var(--fg); box-shadow: 6px 6px 0 var(--fg); }
+  .service:nth-child(3n+1) { background: var(--funk-purple); color:#fff; }
+  .service:nth-child(3n+1) .icon { color: var(--funk-lime); }
+  .service:nth-child(3n+1) p { color: rgba(255,255,255,.85); }
+  .service:nth-child(3n+2) { background: var(--funk-lime); color: var(--fg); }
+  .service:nth-child(3n+2) .icon { color: var(--funk-pink); }
+  .service:nth-child(3n+2) p { color: rgba(0,0,0,.7); }
+  .service:nth-child(3n) { background: var(--funk-pink); color:#fff; }
+  .service:nth-child(3n) .icon { color: var(--funk-cyan); }
+  .service:nth-child(3n) p { color: rgba(255,255,255,.85); }
+  .service:hover { transform: translate(-3px, -3px); box-shadow: 9px 9px 0 var(--fg); }
+  .service h4 { font-family: var(--display) !important; font-weight: 800; font-size: 22px !important; }
+
+  /* 8) 필터 칩 — 네오브루탈 */
+  .filter-chip {
+    border: 2px solid var(--fg) !important;
+    box-shadow: 3px 3px 0 var(--fg);
+    background: #fff !important;
+    border-radius: 8px !important;
+    color: var(--fg) !important;
+  }
+  .filter-chip:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--fg); background: var(--funk-cyan) !important; }
+  .filter-chip.on { background: var(--funk-pink) !important; color:#fff !important; }
+
+  /* 9) 작업물 카드 — 둥근 + 두꺼운 보더 + 컬러풀 hover */
+  .work .thumb {
+    border: 3px solid var(--fg) !important;
+    box-shadow: 8px 8px 0 var(--fg) !important;
+    border-radius: 18px !important;
+  }
+  .work:hover .thumb {
+    transform: translate(-3px,-3px) rotate(-1deg) scale(1.02) !important;
+    box-shadow: 12px 12px 0 var(--funk-pink) !important;
+  }
+  .work .thumb::after {
+    background: var(--funk-lime) !important; color: var(--fg) !important;
+    border: 2px solid var(--fg);
+    box-shadow: 2px 2px 0 var(--fg);
+    border-radius: 6px !important;
+    font-weight: 800 !important;
+  }
+  .work h3 { font-family: var(--display) !important; font-weight: 800 !important; }
+  .work .cat { color: var(--funk-purple) !important; font-weight: 800 !important; }
+
+  /* 10) 타임라인 — 컬러풀 도트 */
+  .timeline::before { background: linear-gradient(180deg, var(--funk-pink), var(--funk-purple), var(--funk-cyan)) !important; opacity: 1 !important; width: 3px !important; }
+  .tl-row::before {
+    border: 3px solid var(--fg) !important;
+    background: var(--funk-lime) !important;
+    box-shadow: 2px 2px 0 var(--fg);
+  }
+  .tl-row:hover::before { background: var(--funk-pink) !important; }
+  .tl-year { color: var(--funk-pink) !important; font-family: var(--display) !important; font-weight: 800 !important; font-style: normal !important; }
+
+  /* 11) CTA — 비비드 그라데이션 + 네오브루탈 버튼 */
+  .cta {
+    background: linear-gradient(135deg, var(--funk-purple) 0%, var(--funk-pink) 50%, var(--funk-orange) 100%) !important;
+    color:#fff !important;
+    border: 3px solid var(--fg) !important;
+    box-shadow: 12px 12px 0 var(--fg) !important;
+  }
+  .cta::before { color: rgba(255,255,255,.12) !important; }
+  .cta h2 em { background: linear-gradient(135deg, var(--funk-lime), var(--funk-cyan)) !important; -webkit-background-clip:text !important; color:transparent !important; }
+  .cta-btn {
+    background: var(--funk-lime) !important; color: var(--fg) !important;
+    border: 3px solid var(--fg) !important; border-radius: 12px !important;
+    box-shadow: 6px 6px 0 var(--fg) !important;
+    font-weight: 800 !important;
+  }
+  .cta-btn:hover { transform: translate(-3px,-3px) scale(1.05) !important; box-shadow: 9px 9px 0 var(--fg) !important; }
+
+  /* 12) 도트 패턴 배경 (Services 섹션) */
+  #services {
+    background-image: radial-gradient(circle, rgba(0,0,0,.08) 1.2px, transparent 1.5px);
+    background-size: 22px 22px;
+  }
+
+  /* 13) 핸드라이팅 액센트 (히어로 서브라인 위) */
+  .hero-eyebrow { background: var(--funk-lime) !important; color: var(--fg) !important; border: 2px solid var(--fg); box-shadow: 3px 3px 0 var(--fg); font-weight: 700; }
+  .hero-eyebrow::before { background: var(--funk-pink) !important; }
+
+  /* 14) 푸터 — 펑키 컬러 액센트 */
+  .foot-top a:hover { color: var(--funk-pink) !important; }
+  .foot-brand { font-family: var(--display) !important; font-weight: 800 !important; font-style: normal !important; }
+
+  /* 15) 알약 네비 — 강한 보더 */
+  #pillNav { border: 2px solid var(--funk-pink); }
+  #pillNav a:hover, #pillNav a.active { background: var(--funk-pink); }
+
+  /* 16) 티커 — 비비드 컬러 교차 */
+  .ticker { background: var(--funk-lime); color: var(--fg); border-top: 3px solid var(--fg); border-bottom: 3px solid var(--fg); }
+  .ticker .ticker-track span::before { color: var(--funk-purple) !important; }
+
+  /* 17) 회전 라벨 (히어로 우측) — 핑크로 변경 */
+  .hero::after { background: var(--funk-pink) !important; color:#fff !important; box-shadow: 6px 6px 0 var(--fg) !important; border: 3px solid var(--fg); }
+
+  /* 18) 사이드 드로어 — 펑키 액센트 */
+  .aside { background: var(--funk-purple) !important; }
+  .aside nav a:hover { color: var(--funk-lime) !important; }
 </style>
 </head>
 <body>
@@ -1012,6 +1216,10 @@
 <!-- 히어로 -->
 <section class="hero" id="top" data-editable>
   <button class="ed-btn" data-edit="hero" title="히어로 편집">✎</button>
+  <span class="sticker s-pink"   style="top: 14%; left: 4%; --rot: -8deg;">new ✦</span>
+  <span class="sticker s-lime"   style="top: 6%; right: 22%; --rot: 7deg;">since '24</span>
+  <span class="sticker s-cyan"   style="bottom: 22%; left: 38%; --rot: -4deg;">★ webtoon × ai</span>
+  <span class="sticker s-purple" style="bottom: 8%; right: 6%; --rot: 6deg;">say hi 👋</span>
   <div class="hero-text">
     <div class="hero-eyebrow">INDEPENDENT STUDIO · EST. 2024</div>
     <h1 class="hero-headline" id="heroHeadline">We make bold<br><em>stories &amp; tools.</em></h1>
@@ -1426,8 +1634,7 @@
     const tagline = pickLang(s, 'studio_tagline') || '';
     document.title = `${name} · ${tagline}`;
     $('#metaDescription').content = pickLang(s, 'seo_description') || '';
-    if (s.logo_url) $('#siteLogo').innerHTML = `<img src="${s.logo_url}" alt="">`;
-    else $('#siteLogo').innerHTML = name;
+    $('#siteLogo').innerHTML = `<img src="${s.logo_url || 'logo.png'}" alt="${esc(name)}">`;
     $('#asideLogo').textContent = name;
     $('#footBrand').textContent = name;
     $('#footDesc').textContent = pickLang(s, 'studio_description') || '';
@@ -1948,6 +2155,9 @@
       openEditor(add.dataset.add, null);
     }
   }, true);
+
+  // ================== 로고 클릭 → 새로고침 ==================
+  $('#siteLogo').onclick = e => { e.preventDefault(); location.reload(); };
 
   // ================== 트렌디 인터랙션 ==================
   // 스크롤 프로그레스 + 헤더 축소 + 떠있는 알약 네비 등장 + 액티브 섹션
