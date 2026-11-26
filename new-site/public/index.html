@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>만트라 스튜디오 · MANTRA STUDIO</title>
+<meta name="description" content="만트라 스튜디오. 웹툰 제작, 디지털 드로잉 교육, 플랫폼 만트라 포춘.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --fg:#111; --muted:#6b6b6b; --line:#e6e6e6; --soft:#f7f7f6; --accent:#d94b2b; }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:#fff; color:var(--fg); font-family:'Noto Sans KR',system-ui,sans-serif; line-height:1.7; word-break:keep-all; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:880px; margin:0 auto; padding:0 24px; }
+  button { font:inherit; cursor:pointer; }
+
+  header { border-bottom:1px solid var(--line); }
+  header .wrap { display:flex; align-items:center; justify-content:space-between; height:68px; }
+  .brand { font-weight:700; letter-spacing:.08em; font-size:15px; }
+
+  .btn { border:1px solid var(--fg); background:var(--fg); color:#fff; border-radius:999px; padding:13px 30px; font-weight:500; transition:background .2s,border-color .2s; }
+  .btn:hover { background:var(--accent); border-color:var(--accent); }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .btn.small { padding:7px 18px; font-size:14px; }
+  .btn.ghost { background:#fff; color:var(--fg); border-color:var(--line); }
+  .btn.ghost:hover { border-color:var(--fg); }
+
+  .hero { text-align:center; padding:80px 0 88px; }
+  .hero img { width:240px; max-width:70%; height:auto; margin-bottom:40px; }
+  h1 { font-size:clamp(26px,4.6vw,40px); line-height:1.45; margin:0 0 18px; letter-spacing:-.02em; }
+  .hero p { color:var(--muted); margin:0 auto 34px; max-width:520px; }
+
+  section.block { border-top:1px solid var(--line); padding:72px 0; }
+  h2 { font-size:22px; margin:0 0 32px; text-align:center; }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:0; padding:0; list-style:none; }
+  .grid li { background:var(--soft); border-radius:14px; padding:28px; text-align:center; }
+  .grid h3 { margin:0 0 8px; font-size:17px; }
+  .grid p { margin:0; color:var(--muted); font-size:15px; }
+  .grid a { color:var(--accent); font-weight:500; text-underline-offset:3px; }
+
+  .cta { text-align:center; }
+  .cta p { color:var(--muted); margin:-20px 0 28px; }
+
+  footer { border-top:1px solid var(--line); padding:28px 0; color:var(--muted); font-size:13px; text-align:center; }
+
+  dialog { width:min(520px,calc(100% - 32px)); max-height:calc(100vh - 32px); border:0; border-radius:16px; padding:32px; box-shadow:0 24px 70px rgba(0,0,0,.25); }
+  dialog::backdrop { background:rgba(0,0,0,.45); }
+  dialog h2 { text-align:left; margin:0 0 4px; }
+  dialog .desc { margin:0 0 22px; color:var(--muted); font-size:14px; }
+  label { display:block; font-size:14px; font-weight:500; margin-bottom:14px; }
+  label span { color:var(--muted); font-weight:400; }
+  input:not([type=checkbox]), textarea { display:block; width:100%; margin-top:6px; padding:11px 13px; border:1px solid var(--line); border-radius:10px; font:inherit; font-size:15px; font-weight:400; color:var(--fg); }
+  input:focus, textarea:focus { outline:2px solid var(--fg); outline-offset:-1px; }
+  textarea { min-height:130px; resize:vertical; }
+  .agree { display:flex; gap:10px; align-items:flex-start; font-weight:400; font-size:13px; }
+  .agree input { margin-top:5px; }
+  .hp { position:absolute; left:-9999px; }
+  .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; }
+  #status { margin:14px 0 0; font-size:14px; min-height:1em; }
+  #status.err { color:#c0261c; }
+  #status.ok { color:#17803d; }
+
+  @media (max-width:600px) {
+    .grid { grid-template-columns:1fr; }
+    .hero { padding:56px 0 64px; }
+    section.block { padding:56px 0; }
+    dialog { padding:24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand">MANTRA STUDIO</div>
+    <button type="button" class="btn small" data-open>문의하기</button>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <img src="logo.png" alt="만트라 스튜디오">
+    <h1>웹툰, 교육, 플랫폼</h1>
+    <p>만트라 스튜디오는 전주의 창작 스튜디오입니다.</p>
+    <button type="button" class="btn" data-open>문의하기</button>
+  </div>
+
+  <section class="block">
+    <div class="wrap">
+      <h2>하는 일</h2>
+      <ul class="grid">
+        <li><h3>콘텐츠 제작</h3><p>웹툰을 만듭니다.</p></li>
+        <li><h3>교육 사업</h3><p>디지털 드로잉을 가르칩니다.</p></li>
+        <li><h3>플랫폼 사업</h3><p><a href="https://mantrafortune.com/report/" target="_blank" rel="noopener">만트라 포춘</a>을 운영합니다.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block cta">
+    <div class="wrap">
+      <h2>함께할 일이 있으신가요?</h2>
+      <p>제작 의뢰, 강의, 협업 문의를 받습니다.</p>
+      <button type="button" class="btn" data-open>문의하기</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">© MANTRA STUDIO · 전주</div>
+</footer>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <h2 id="dlgTitle">문의하기</h2>
+  <p class="desc">남겨주신 이메일로 답변드립니다.</p>
+  <form id="form">
+    <label>이름 또는 회사명<input name="name" maxlength="60" required autocomplete="name"></label>
+    <label>이메일<input name="email" type="email" maxlength="120" required autocomplete="email"></label>
+    <label>연락처 <span>(선택)</span><input name="phone" type="tel" maxlength="30" autocomplete="tel"></label>
+    <label>문의 내용<textarea name="message" maxlength="3000" required></textarea></label>
+    <label class="hp" aria-hidden="true">비워두세요<input name="website" tabindex="-1" autocomplete="off"></label>
+    <label class="agree">
+      <input type="checkbox" name="agree" required>
+      <span>문의 답변을 위해 이름, 이메일, 연락처(선택)를 수집·이용하는 데 동의합니다. 수집한 정보는 문의 처리 후 1년간 보관 뒤 삭제하며, 동의하지 않으면 문의를 보낼 수 없습니다.</span>
+    </label>
+    <p id="status" role="status"></p>
+    <div class="actions">
+      <button type="button" class="btn ghost" id="close">닫기</button>
+      <button type="submit" class="btn" id="send">보내기</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  const dlg = document.getElementById('dlg');
+  const form = document.getElementById('form');
+  const status = document.getElementById('status');
+  const send = document.getElementById('send');
+
+  function show(text, type = '') { status.textContent = text; status.className = type; }
+
+  document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => { show(''); dlg.showModal(); });
+  document.getElementById('close').onclick = () => dlg.close();
+
+  form.onsubmit = async e => {
+    e.preventDefault();
+    send.disabled = true;
+    show('보내는 중입니다…');
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error);
+      form.reset();
+      show('문의가 접수되었습니다. 감사합니다.', 'ok');
+    } catch (err) {
+      // fetch 자체가 실패하면 TypeError
+      show((!(err instanceof TypeError) && err.message) || '전송에 실패했습니다. 잠시 후 다시 시도해 주세요.', 'err');
+    } finally {
+      send.disabled = false;
+    }
+  };
+</script>
+</body>
+</html>
