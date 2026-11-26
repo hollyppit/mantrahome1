@@ -35,10 +35,26 @@
   section.block { border-top:1px solid var(--line); padding:72px 0; }
   h2 { font-size:22px; margin:0 0 32px; text-align:center; }
   .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:0; padding:0; list-style:none; }
-  .grid li { background:var(--soft); border-radius:14px; padding:28px; text-align:center; }
+  .grid li { background:var(--soft); border-radius:14px; overflow:hidden; padding-bottom:24px; text-align:center; }
+  .grid img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; margin-bottom:20px; }
+  .grid .art { object-position:50% 56%; }
+  .grid h3, .grid p { padding:0 16px; }
   .grid h3 { margin:0 0 8px; font-size:17px; }
   .grid p { margin:0; color:var(--muted); font-size:15px; }
   .grid a { color:var(--accent); font-weight:500; text-underline-offset:3px; }
+
+  .portfolio { background:#222; color:#fff; padding:72px 0; }
+  .wrap.wide { max-width:1100px; }
+  .works { list-style:none; padding:0; margin:-12px 0 40px; text-align:center; color:#bbb; font-size:15px; }
+  .gallery { display:grid; grid-template-columns:1fr 1fr; gap:28px; padding-bottom:100px; }
+  .gallery figure { position:relative; margin:0; border-radius:16px; overflow:hidden; aspect-ratio:1; background:#333; }
+  .gallery figure:nth-child(even) { top:100px; }
+  .gallery img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .4s; }
+  .gallery figure:hover img { transform:scale(1.04); }
+  .gallery figcaption { position:absolute; inset:0 0 auto; padding:24px 24px 48px; background:linear-gradient(rgba(0,0,0,.65),transparent); font-weight:500; }
+  .gallery .grappler img { object-position:50% 64%; }
+  .gallery .drama img { object-position:15% 50%; }
+  .gallery .drama figcaption { inset:auto 0 0; padding:48px 24px 24px; background:linear-gradient(transparent,rgba(0,0,0,.8)); }
 
   .cta { text-align:center; }
   .cta p { color:var(--muted); margin:-20px 0 28px; }
@@ -66,6 +82,9 @@
 
   @media (max-width:600px) {
     .grid { grid-template-columns:1fr; }
+    .portfolio { padding:56px 0; }
+    .gallery { grid-template-columns:1fr; gap:16px; padding-bottom:0; }
+    .gallery figure:nth-child(even) { top:0; }
     .hero { padding:56px 0 64px; }
     section.block { padding:56px 0; }
     dialog { padding:24px; }
@@ -93,10 +112,29 @@
     <div class="wrap">
       <h2>하는 일</h2>
       <ul class="grid">
-        <li><h3>콘텐츠 제작</h3><p>웹툰을 만듭니다.</p></li>
-        <li><h3>교육 사업</h3><p>디지털 드로잉을 가르칩니다.</p></li>
-        <li><h3>플랫폼 사업</h3><p><a href="https://mantrafortune.com/report/" target="_blank" rel="noopener">만트라 포춘</a>을 운영합니다.</p></li>
+        <li><img class="art" src="portfolio/grappler.jpg" alt="" loading="lazy"><h3>콘텐츠 제작</h3><p>웹툰을 만듭니다.</p></li>
+        <li><img src="https://images.unsplash.com/photo-1661595677003-157c57d7d3e4?w=600&amp;h=450&amp;fit=crop&amp;q=80" alt="" loading="lazy"><h3>교육 사업</h3><p>디지털 드로잉을 가르칩니다.</p></li>
+        <li><img src="https://images.unsplash.com/photo-1444703686981-a3abbc4d4fe3?w=600&amp;h=450&amp;fit=crop&amp;q=80" alt="" loading="lazy"><h3>플랫폼 사업</h3><p><a href="https://mantrafortune.com/report/" target="_blank" rel="noopener">만트라 포춘</a>을 운영합니다.</p></li>
       </ul>
+    </div>
+  </section>
+
+  <section class="portfolio" id="portfolio">
+    <div class="wrap wide">
+      <h2>포트폴리오</h2>
+      <ul class="works">
+        <li>웹툰 &lt;루갈&gt; (연재처: 카카오페이지)</li>
+        <li>웹툰 &lt;루갈&gt; 2차 판권 계약 (드라마 영상화: OCN, 넷플릭스)</li>
+        <li>소설 원작 웹툰 &lt;놈의 기억&gt; (연재처: 탑툰)</li>
+        <li>웹툰 &lt;鬼신들린 그래플러&gt; 제작 중</li>
+        <li>[뱀파이어 소재] 웹툰 개발 중</li>
+      </ul>
+      <div class="gallery">
+        <figure><img src="portfolio/rugal-1.jpg" alt="" width="2000" height="1000" loading="lazy"><figcaption>웹툰 &lt;루갈&gt; 시리즈 연재</figcaption></figure>
+        <figure class="grappler"><img src="portfolio/grappler.jpg" alt="" width="900" height="1600" loading="lazy"><figcaption>웹툰 &lt;鬼신들린 그래플러&gt; 제작 중</figcaption></figure>
+        <figure class="drama"><img src="portfolio/rugal-drama.jpg" alt="" width="937" height="593" loading="lazy"><figcaption>드라마 &lt;루갈&gt; 판권 계약</figcaption></figure>
+        <figure><img src="portfolio/rugal-2.jpg" alt="" width="2000" height="1000" loading="lazy"><figcaption>웹툰 &lt;루갈&gt;</figcaption></figure>
+      </div>
     </div>
   </section>
 
