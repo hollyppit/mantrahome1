@@ -49,6 +49,9 @@
   .gallery { display:grid; grid-template-columns:1fr 1fr; gap:28px; padding-bottom:100px; }
   .gallery figure { position:relative; margin:0; border-radius:16px; overflow:hidden; aspect-ratio:1; background:#333; }
   .gallery figure:nth-child(even) { top:100px; }
+  .works a { color:#fff; text-underline-offset:3px; }
+  .gallery a { display:block; height:100%; color:inherit; text-decoration:none; }
+  .gallery a:focus-visible { outline:3px solid #fff; outline-offset:-3px; border-radius:16px; }
   .gallery img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .4s; }
   .gallery figure:hover img { transform:scale(1.04); }
   .gallery figcaption { position:absolute; inset:0 0 auto; padding:24px 24px 48px; background:linear-gradient(rgba(0,0,0,.65),transparent); font-weight:500; }
@@ -123,17 +126,17 @@
     <div class="wrap wide">
       <h2>포트폴리오</h2>
       <ul class="works">
-        <li>웹툰 &lt;루갈&gt; (연재처: 카카오페이지)</li>
+        <li><a href="https://page.kakao.com/content/53178390/" target="_blank" rel="noopener">웹툰 &lt;루갈&gt;</a> (연재처: 카카오페이지)</li>
         <li>웹툰 &lt;루갈&gt; 2차 판권 계약 (드라마 영상화: OCN, 넷플릭스)</li>
         <li>소설 원작 웹툰 &lt;놈의 기억&gt; (연재처: 탑툰)</li>
-        <li>웹툰 &lt;鬼신들린 그래플러&gt; 제작 중</li>
+        <li><a href="https://page.kakao.com/content/69170913/" target="_blank" rel="noopener">웹툰 &lt;鬼신들린 그래플러&gt;</a> 연재 중 (연재처: 카카오페이지)</li>
         <li>[뱀파이어 소재] 웹툰 개발 중</li>
       </ul>
       <div class="gallery">
-        <figure><img src="portfolio/rugal-1.jpg" alt="" width="2000" height="1000" loading="lazy"><figcaption>웹툰 &lt;루갈&gt; 시리즈 연재</figcaption></figure>
-        <figure class="grappler"><img src="portfolio/grappler.jpg" alt="" width="900" height="1600" loading="lazy"><figcaption>웹툰 &lt;鬼신들린 그래플러&gt; 제작 중</figcaption></figure>
+        <figure><a href="https://page.kakao.com/content/53178390/" target="_blank" rel="noopener"><img src="portfolio/rugal-1.jpg" alt="" width="2000" height="1000" loading="lazy"><figcaption>웹툰 &lt;루갈&gt; 시리즈 연재</figcaption></a></figure>
+        <figure class="grappler"><a href="https://page.kakao.com/content/69170913/" target="_blank" rel="noopener"><img src="portfolio/grappler.jpg" alt="" width="900" height="1600" loading="lazy"><figcaption>웹툰 &lt;鬼신들린 그래플러&gt; 연재 중</figcaption></a></figure>
         <figure class="drama"><img src="portfolio/rugal-drama.jpg" alt="" width="937" height="593" loading="lazy"><figcaption>드라마 &lt;루갈&gt; 판권 계약</figcaption></figure>
-        <figure><img src="portfolio/rugal-2.jpg" alt="" width="2000" height="1000" loading="lazy"><figcaption>웹툰 &lt;루갈&gt;</figcaption></figure>
+        <figure><a href="https://page.kakao.com/content/53178390/" target="_blank" rel="noopener"><img src="portfolio/rugal-2.jpg" alt="" width="2000" height="1000" loading="lazy"><figcaption>웹툰 &lt;루갈&gt;</figcaption></a></figure>
       </div>
     </div>
   </section>
