@@ -44,6 +44,8 @@
   .cta p { color:var(--muted); margin:-20px 0 28px; }
 
   footer { border-top:1px solid var(--line); padding:28px 0; color:var(--muted); font-size:13px; text-align:center; }
+  footer a { color:inherit; text-underline-offset:3px; }
+  footer .copy { margin-top:12px; }
 
   dialog { width:min(520px,calc(100% - 32px)); max-height:calc(100vh - 32px); border:0; border-radius:16px; padding:32px; box-shadow:0 24px 70px rgba(0,0,0,.25); }
   dialog::backdrop { background:rgba(0,0,0,.45); }
@@ -108,7 +110,12 @@
 </main>
 
 <footer>
-  <div class="wrap">© MANTRA STUDIO · 전주</div>
+  <div class="wrap">
+    <div>만트라 스튜디오 · 대표 백진우 · 사업자등록번호 775-24-01924 <a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=7752401924" target="_blank" rel="noopener">사업자정보 확인</a></div>
+    <div>통신판매업 신고 제2026-전주덕진-0195호 · 전북특별자치도 전주시 덕진구 만성중앙로 53-44, 3층 A-2호(만성동)</div>
+    <div>고객 문의 <a href="tel:070-4519-6416">070-4519-6416</a> · <a href="mailto:critical5114@naver.com">critical5114@naver.com</a></div>
+    <div class="copy">© MANTRA STUDIO</div>
+  </div>
 </footer>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
