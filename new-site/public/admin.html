@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>관리자 · MANTRA STUDIO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --fg:#111; --muted:#6b6b6b; --line:#e6e6e6; --soft:#f7f7f6; --accent:#d94b2b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--soft); color:var(--fg); font-family:'Noto Sans KR',system-ui,sans-serif; line-height:1.6; word-break:keep-all; -webkit-font-smoothing:antialiased; }
+  button { font:inherit; cursor:pointer; }
+  [hidden] { display:none !important; }
+
+  header { background:#fff; border-bottom:1px solid var(--line); }
+  header .in { max-width:680px; margin:0 auto; padding:0 24px; height:64px; display:flex; align-items:center; justify-content:space-between; }
+  .brand { font-weight:700; letter-spacing:.08em; font-size:15px; color:inherit; text-decoration:none; }
+  .brand small { font-weight:500; letter-spacing:0; color:var(--muted); margin-left:8px; }
+
+  main { max-width:680px; margin:32px auto; padding:0 16px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:32px; }
+  .card.narrow { max-width:400px; margin:60px auto; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .desc { margin:0 0 24px; color:var(--muted); font-size:14px; }
+
+  .btn { border:1px solid var(--fg); background:var(--fg); color:#fff; border-radius:999px; padding:12px 28px; font-weight:500; transition:background .2s,border-color .2s; }
+  .btn:hover { background:var(--accent); border-color:var(--accent); }
+  .btn:disabled { opacity:.5; cursor:default; background:var(--fg); border-color:var(--fg); }
+  .btn.small { padding:6px 16px; font-size:14px; }
+  .btn.ghost { background:#fff; color:var(--fg); border-color:var(--line); }
+  .btn.ghost:hover { border-color:var(--fg); }
+
+  label { display:block; font-size:14px; font-weight:500; margin-bottom:16px; }
+  label span { color:var(--muted); font-weight:400; }
+  input, textarea { display:block; width:100%; margin-top:6px; padding:11px 13px; border:1px solid var(--line); border-radius:10px; font:inherit; font-size:15px; font-weight:400; color:var(--fg); background:#fff; }
+  input:focus, textarea:focus { outline:2px solid var(--fg); outline-offset:-1px; }
+  textarea { min-height:120px; resize:vertical; }
+
+  .drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border:1.5px dashed #c9c9c9; border-radius:12px; padding:28px 16px; text-align:center; color:var(--muted); font-size:14px; cursor:pointer; transition:border-color .2s, background .2s; }
+  .drop b { color:var(--fg); font-weight:500; }
+  .drop:hover, .drop.over { border-color:var(--fg); background:var(--soft); }
+  .drop:focus-within { outline:2px solid var(--fg); outline-offset:2px; }
+  .drop input { position:absolute; width:1px; height:1px; opacity:0; }
+
+  .files { list-style:none; margin:12px 0 0; padding:0; }
+  .files li { display:flex; align-items:center; gap:12px; padding:9px 4px 9px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:6px; font-size:14px; }
+  .files .kind { flex:none; width:40px; font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--muted); }
+  .files .name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .files .size { flex:none; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .files button { flex:none; border:0; background:none; width:32px; height:32px; border-radius:8px; color:var(--muted); font-size:18px; line-height:1; }
+  .files button:hover { background:var(--soft); color:var(--fg); }
+
+  .meter { display:flex; align-items:center; gap:12px; margin:12px 0 4px; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .meter .bar { flex:1; height:6px; background:var(--line); border-radius:3px; overflow:hidden; }
+  .meter .bar i { display:block; height:100%; width:0; background:var(--fg); transition:width .2s; }
+  .meter.over { color:#c0261c; }
+  .meter.over .bar i { background:#c0261c; }
+
+  .actions { display:flex; gap:8px; justify-content:flex-end; align-items:center; margin-top:24px; }
+  .status { margin:16px 0 0; font-size:14px; min-height:1.6em; }
+  .status.err { color:#c0261c; }
+  .status.ok { color:#17803d; }
+
+  @media (max-width:600px) { .card { padding:24px 20px; } main { margin:16px auto; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="in">
+    <a class="brand" href="/">MANTRA STUDIO<small>관리자</small></a>
+    <button type="button" class="btn small ghost" id="logout" hidden>로그아웃</button>
+  </div>
+</header>
+
+<main>
+  <form class="card narrow" id="login">
+    <h1>관리자 로그인</h1>
+    <p class="desc">관리자 비밀번호를 입력하세요.</p>
+    <label>비밀번호<input type="password" name="password" required autocomplete="current-password" autofocus></label>
+    <p class="status" id="loginStatus" role="status"></p>
+    <div class="actions"><button type="submit" class="btn">들어가기</button></div>
+  </form>
+
+  <form class="card" id="mail" hidden>
+    <h1>파일 보내기</h1>
+    <p class="desc">이미지, 영상, ZIP, PDF 등을 메일에 첨부해 보냅니다. 한 번에 최대 28MB까지 가능합니다.</p>
+
+    <label>받는 사람 <span>(여러 명은 쉼표로 구분)</span><input name="to" required placeholder="name@example.com" autocomplete="email" inputmode="email"></label>
+    <label>제목<input name="subject" required maxlength="200" value="[만트라 스튜디오] 요청하신 파일을 보내드립니다"></label>
+    <label>내용 <span>(선택)</span><textarea name="text" maxlength="5000" placeholder="안녕하세요, 만트라 스튜디오입니다."></textarea></label>
+
+    <label class="drop" id="drop">
+      <input type="file" id="picker" multiple>
+      <b>파일을 끌어다 놓거나 클릭해서 고르세요</b>
+      <span>여러 개 한 번에 선택할 수 있습니다</span>
+    </label>
+    <ul class="files" id="files"></ul>
+    <div class="meter" id="meter" hidden><div class="bar"><i id="meterBar"></i></div><span id="meterText"></span></div>
+
+    <p class="status" id="mailStatus" role="status"></p>
+    <div class="actions"><button type="submit" class="btn" id="send">보내기</button></div>
+  </form>
+</main>
+
+<script>
+  // Resend 한 통 40MB 제한 (base64 로 약 1.37배 커짐)
+  const MAX_TOTAL = 28 * 1024 * 1024;
+  const KEY = 'mantra_admin_pw';
+
+  const $ = id => document.getElementById(id);
+  const login = $('login'), mail = $('mail'), logout = $('logout');
+  const picker = $('picker'), drop = $('drop'), list = $('files');
+  let files = [];
+
+  const status = (el, text, type = '') => { el.textContent = text; el.className = 'status ' + type; };
+  const mb = n => n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + 'KB' : (n / 1024 / 1024).toFixed(1) + 'MB';
+  const pw = () => sessionStorage.getItem(KEY) || '';
+  const authHeader = p => ({ 'X-Admin-Password': encodeURIComponent(p) });
+
+  function showMail(on) {
+    login.hidden = on;
+    mail.hidden = !on;
+    logout.hidden = !on;
+    if (on) mail.to.focus();
+  }
+
+  async function check(p) {
+    const res = await fetch('/api/admin/login', { method: 'POST', headers: authHeader(p) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || '로그인에 실패했습니다.');
+  }
+
+  login.onsubmit = async e => {
+    e.preventDefault();
+    const p = login.password.value;
+    const btn = login.querySelector('button');
+    btn.disabled = true;
+    status($('loginStatus'), '확인 중…');
+    try {
+      await check(p);
+      sessionStorage.setItem(KEY, p);
+      login.reset();
+      status($('loginStatus'), '');
+      showMail(true);
+    } catch (err) {
+      status($('loginStatus'), err instanceof TypeError ? '서버에 연결할 수 없습니다.' : err.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  logout.onclick = () => { sessionStorage.removeItem(KEY); showMail(false); };
+
+  // 새로고침해도 탭을 닫기 전까지 로그인 유지
+  if (pw()) check(pw()).then(() => showMail(true), () => sessionStorage.removeItem(KEY));
+
+  // ── 파일 목록 ──
+  function kind(f) {
+    const ext = (f.name.split('.').pop() || '').toUpperCase();
+    if (f.type.startsWith('image/')) return '이미지';
+    if (f.type.startsWith('video/')) return '영상';
+    return ext.length <= 4 ? ext : '파일';
+  }
+
+  function render() {
+    list.replaceChildren(...files.map((f, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = '<span class="kind"></span><span class="name"></span><span class="size"></span><button type="button">×</button>';
+      li.querySelector('.kind').textContent = kind(f);
+      li.querySelector('.name').textContent = f.name;
+      li.querySelector('.name').title = f.name;
+      li.querySelector('.size').textContent = mb(f.size);
+      const rm = li.querySelector('button');
+      rm.setAttribute('aria-label', f.name + ' 빼기');
+      rm.onclick = () => { files.splice(i, 1); render(); };
+      return li;
+    }));
+    const total = files.reduce((s, f) => s + f.size, 0);
+    const over = total > MAX_TOTAL;
+    $('meter').hidden = !files.length;
+    $('meter').classList.toggle('over', over);
+    $('meterBar').style.width = Math.min(100, total / MAX_TOTAL * 100) + '%';
+    $('meterText').textContent = `${files.length}개 · ${mb(total)} / 28MB` + (over ? ' · 용량 초과' : '');
+    $('send').disabled = over;
+  }
+
+  function add(newFiles) {
+    for (const f of newFiles) {
+      if (!files.some(x => x.name === f.name && x.size === f.size && x.lastModified === f.lastModified)) files.push(f);
+    }
+    render();
+  }
+
+  picker.onchange = () => { add(picker.files); picker.value = ''; };
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+  drop.ondragleave = () => drop.classList.remove('over');
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); add(e.dataTransfer.files); };
+  // 영역 밖에 떨어뜨려도 브라우저가 파일을 열지 않게
+  addEventListener('dragover', e => e.preventDefault());
+  addEventListener('drop', e => e.preventDefault());
+
+  const toBase64 = f => new Promise((ok, fail) => {
+    const r = new FileReader();
+    r.onload = () => ok(r.result.slice(r.result.indexOf(',') + 1));
+    r.onerror = () => fail(new Error(`${f.name} 파일을 읽지 못했습니다.`));
+    r.readAsDataURL(f);
+  });
+
+  // ── 보내기 ──
+  mail.onsubmit = async e => {
+    e.preventDefault();
+    const st = $('mailStatus');
+    const to = mail.to.value.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
+    if (!files.length) return status(st, '보낼 파일을 하나 이상 넣어 주세요.', 'err');
+    const bad = to.find(a => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a));
+    if (bad) return status(st, `이메일 형식을 확인해 주세요: ${bad}`, 'err');
+    if (!confirm(`${to.join(', ')} 에게 파일 ${files.length}개를 보낼까요?`)) return;
+
+    const btn = $('send');
+    btn.disabled = true;
+    try {
+      status(st, '파일을 준비하는 중…');
+      const attachments = [];
+      for (const f of files) attachments.push({ filename: f.name, content: await toBase64(f) });
+
+      status(st, '보내는 중… 파일이 크면 시간이 걸립니다.');
+      const meta = { to, subject: mail.subject.value, text: mail.text.value };
+      const res = await fetch('/api/admin/send', {
+        method: 'POST',
+        headers: { ...authHeader(pw()), 'Content-Type': 'text/plain; charset=utf-8' },
+        body: JSON.stringify(meta) + '\n' + JSON.stringify(attachments),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        sessionStorage.removeItem(KEY);
+        showMail(false);
+        status($('loginStatus'), '비밀번호가 바뀌었거나 만료되었습니다. 다시 로그인해 주세요.', 'err');
+        return;
+      }
+      if (!res.ok) throw new Error(data.error || '전송에 실패했습니다.');
+
+      status(st, `보냈습니다. (${to.join(', ')})`, 'ok');
+      files = [];
+      render();
+    } catch (err) {
+      status(st, err instanceof TypeError ? '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.' : err.message, 'err');
+    } finally {
+      btn.disabled = files.reduce((s, f) => s + f.size, 0) > MAX_TOTAL;
+    }
+  };
+</script>
+</body>
+</html>
