@@ -35,9 +35,20 @@
 
   label { display:block; font-size:14px; font-weight:500; margin-bottom:16px; }
   label span { color:var(--muted); font-weight:400; }
-  input, textarea { display:block; width:100%; margin-top:6px; padding:11px 13px; border:1px solid var(--line); border-radius:10px; font:inherit; font-size:15px; font-weight:400; color:var(--fg); background:#fff; }
+  input:not([type=radio]):not([type=file]), textarea { display:block; width:100%; margin-top:6px; padding:11px 13px; border:1px solid var(--line); border-radius:10px; font:inherit; font-size:15px; font-weight:400; color:var(--fg); background:#fff; }
   input:focus, textarea:focus { outline:2px solid var(--fg); outline-offset:-1px; }
   textarea { min-height:120px; resize:vertical; }
+
+  /* 보내는 방법 / 방식 고르기 */
+  .seg { display:flex; gap:4px; padding:4px; background:var(--soft); border-radius:12px; margin:0 0 20px; border:0; }
+  .seg legend { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  .seg label { flex:1; margin:0; }
+  .seg input { position:absolute; opacity:0; }
+  .seg span { display:block; text-align:center; padding:9px 8px; border-radius:9px; color:var(--muted); font-weight:500; cursor:pointer; transition:background .15s, color .15s; }
+  .seg input:checked + span { background:#fff; color:var(--fg); box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  .seg input:focus-visible + span { outline:2px solid var(--fg); }
+  .seg.small span { font-size:13px; padding:7px 6px; }
+  .field-title { font-size:14px; font-weight:500; margin:0 0 6px; }
 
   .drop { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border:1.5px dashed #c9c9c9; border-radius:12px; padding:28px 16px; text-align:center; color:var(--muted); font-size:14px; cursor:pointer; transition:border-color .2s, background .2s; }
   .drop b { color:var(--fg); font-weight:500; }
@@ -46,12 +57,15 @@
   .drop input { position:absolute; width:1px; height:1px; opacity:0; }
 
   .files { list-style:none; margin:12px 0 0; padding:0; }
-  .files li { display:flex; align-items:center; gap:12px; padding:9px 4px 9px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:6px; font-size:14px; }
+  .files li { position:relative; overflow:hidden; display:flex; align-items:center; gap:12px; padding:9px 4px 9px 12px; border:1px solid var(--line); border-radius:10px; margin-bottom:6px; font-size:14px; }
+  .files li.bad { border-color:#e8b4ae; }
+  .files li.bad .size { color:#c0261c; }
   .files .kind { flex:none; width:40px; font-size:11px; font-weight:700; letter-spacing:.04em; color:var(--muted); }
   .files .name { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .files .size { flex:none; color:var(--muted); font-variant-numeric:tabular-nums; }
   .files button { flex:none; border:0; background:none; width:32px; height:32px; border-radius:8px; color:var(--muted); font-size:18px; line-height:1; }
   .files button:hover { background:var(--soft); color:var(--fg); }
+  .files .prog { position:absolute; left:0; bottom:0; height:3px; width:0; background:var(--accent); transition:width .2s; }
 
   .meter { display:flex; align-items:center; gap:12px; margin:12px 0 4px; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
   .meter .bar { flex:1; height:6px; background:var(--line); border-radius:3px; overflow:hidden; }
@@ -60,9 +74,11 @@
   .meter.over .bar i { background:#c0261c; }
 
   .actions { display:flex; gap:8px; justify-content:flex-end; align-items:center; margin-top:24px; }
-  .status { margin:16px 0 0; font-size:14px; min-height:1.6em; }
+  .status { margin:16px 0 0; font-size:14px; min-height:1.6em; overflow-wrap:anywhere; }
   .status.err { color:#c0261c; }
   .status.ok { color:#17803d; }
+  .result { display:flex; gap:8px; align-items:center; margin-top:8px; padding:10px 10px 10px 14px; background:var(--soft); border-radius:10px; font-size:14px; }
+  .result a { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--fg); }
 
   @media (max-width:600px) { .card { padding:24px 20px; } main { margin:16px auto; } }
 </style>
@@ -85,47 +101,73 @@
     <div class="actions"><button type="submit" class="btn">들어가기</button></div>
   </form>
 
-  <form class="card" id="mail" hidden>
+  <form class="card" id="mail" hidden novalidate>
     <h1>파일 보내기</h1>
-    <p class="desc">이미지, 영상, ZIP, PDF 등을 메일에 첨부해 보냅니다. 한 번에 최대 28MB까지 가능합니다.</p>
+    <p class="desc">이미지, 영상, ZIP, PDF 등을 이메일, 알림톡, 네이버 톡톡으로 보냅니다.</p>
 
-    <label>받는 사람 <span>(여러 명은 쉼표로 구분)</span><input name="to" required placeholder="name@example.com" autocomplete="email" inputmode="email"></label>
-    <label>제목<input name="subject" required maxlength="200" value="[만트라 스튜디오] 요청하신 파일을 보내드립니다"></label>
-    <label>내용 <span>(선택)</span><textarea name="text" maxlength="5000" placeholder="안녕하세요, 만트라 스튜디오입니다."></textarea></label>
+    <fieldset class="seg">
+      <legend>보내는 방법</legend>
+      <label><input type="radio" name="channel" value="email" checked><span>이메일</span></label>
+      <label><input type="radio" name="channel" value="kakao"><span>알림톡</span></label>
+      <label><input type="radio" name="channel" value="naver"><span>네이버 톡톡</span></label>
+    </fieldset>
+
+    <div id="emailFields">
+      <label>받는 사람 <span>(여러 명은 쉼표로 구분)</span><input name="to" placeholder="name@example.com" autocomplete="email" inputmode="email"></label>
+      <label>제목<input name="subject" maxlength="200" value="[만트라 스튜디오] 요청하신 파일을 보내드립니다"></label>
+      <label>내용 <span>(선택)</span><textarea name="text" maxlength="5000" placeholder="안녕하세요, 만트라 스튜디오입니다."></textarea></label>
+      <p class="field-title">보내는 방식</p>
+      <fieldset class="seg small">
+        <legend>보내는 방식</legend>
+        <label><input type="radio" name="mode" value="attach" checked><span>파일 첨부 (28MB까지)</span></label>
+        <label><input type="radio" name="mode" value="link"><span>다운로드 링크 (14일)</span></label>
+      </fieldset>
+    </div>
+
+    <div id="phoneFields" hidden>
+      <label>받는 사람 휴대폰 번호 <span>(여러 명은 쉼표로 구분)</span><input name="phones" placeholder="010-1234-5678" inputmode="tel" autocomplete="tel"></label>
+      <label>받는 분 이름 <span>(선택, 비우면 "고객")</span><input name="recipientName" maxlength="30" placeholder="홍길동"></label>
+      <p class="desc" style="margin-top:-6px">파일을 저장소에 올리고 14일 동안 받을 수 있는 링크를 보냅니다.</p>
+    </div>
 
     <label class="drop" id="drop">
       <input type="file" id="picker" multiple>
       <b>파일을 끌어다 놓거나 클릭해서 고르세요</b>
-      <span>여러 개 한 번에 선택할 수 있습니다</span>
+      <span id="dropHint">여러 개 한 번에 선택할 수 있습니다</span>
     </label>
     <ul class="files" id="files"></ul>
     <div class="meter" id="meter" hidden><div class="bar"><i id="meterBar"></i></div><span id="meterText"></span></div>
 
     <p class="status" id="mailStatus" role="status"></p>
+    <div class="result" id="result" hidden><a id="resultLink" target="_blank" rel="noopener"></a><button type="button" class="btn small ghost" id="copy">복사</button></div>
     <div class="actions"><button type="submit" class="btn" id="send">보내기</button></div>
   </form>
 </main>
 
 <script>
-  // Resend 한 통 40MB 제한 (base64 로 약 1.37배 커짐)
-  const MAX_TOTAL = 28 * 1024 * 1024;
+  const MAX_ATTACH = 28 * 1024 * 1024; // Resend 한 통 40MB (base64 로 약 1.37배)
+  const MAX_LINK_FILE = 50 * 1024 * 1024; // Supabase 파일당 기본 한도
+  const MAX_LINK_FILES = 20;
   const KEY = 'mantra_admin_pw';
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const $ = id => document.getElementById(id);
   const login = $('login'), mail = $('mail'), logout = $('logout');
   const picker = $('picker'), drop = $('drop'), list = $('files');
   let files = [];
+  let busy = false;
 
   const status = (el, text, type = '') => { el.textContent = text; el.className = 'status ' + type; };
   const mb = n => n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + 'KB' : (n / 1024 / 1024).toFixed(1) + 'MB';
   const pw = () => sessionStorage.getItem(KEY) || '';
   const authHeader = p => ({ 'X-Admin-Password': encodeURIComponent(p) });
+  const channel = () => mail.channel.value;
+  const useLink = () => channel() !== 'email' || mail.mode.value === 'link';
 
   function showMail(on) {
     login.hidden = on;
     mail.hidden = !on;
     logout.hidden = !on;
-    if (on) mail.to.focus();
   }
 
   async function check(p) {
@@ -154,9 +196,21 @@
   };
 
   logout.onclick = () => { sessionStorage.removeItem(KEY); showMail(false); };
-
-  // 새로고침해도 탭을 닫기 전까지 로그인 유지
   if (pw()) check(pw()).then(() => showMail(true), () => sessionStorage.removeItem(KEY));
+
+  function expired() {
+    sessionStorage.removeItem(KEY);
+    showMail(false);
+    status($('loginStatus'), '비밀번호가 바뀌었거나 만료되었습니다. 다시 로그인해 주세요.', 'err');
+  }
+
+  // ── 보내는 방법 전환 ──
+  mail.addEventListener('change', e => {
+    if (e.target.name !== 'channel' && e.target.name !== 'mode') return;
+    $('emailFields').hidden = channel() !== 'email';
+    $('phoneFields').hidden = channel() === 'email';
+    render();
+  });
 
   // ── 파일 목록 ──
   function kind(f) {
@@ -166,29 +220,45 @@
     return ext.length <= 4 ? ext : '파일';
   }
 
+  // 지금 보낼 수 없는 이유 (없으면 '')
+  function problem() {
+    const total = files.reduce((s, f) => s + f.size, 0);
+    if (!useLink()) return total > MAX_ATTACH ? '첨부 용량 초과 · 다운로드 링크로 보내세요' : '';
+    if (files.length > MAX_LINK_FILES) return `파일은 ${MAX_LINK_FILES}개까지`;
+    if (files.some(f => f.size > MAX_LINK_FILE)) return '50MB 넘는 파일이 있습니다';
+    return '';
+  }
+
   function render() {
+    const link = useLink();
     list.replaceChildren(...files.map((f, i) => {
       const li = document.createElement('li');
-      li.innerHTML = '<span class="kind"></span><span class="name"></span><span class="size"></span><button type="button">×</button>';
+      li.className = link && f.size > MAX_LINK_FILE ? 'bad' : '';
+      li.innerHTML = '<span class="kind"></span><span class="name"></span><span class="size"></span><button type="button">×</button><i class="prog"></i>';
       li.querySelector('.kind').textContent = kind(f);
       li.querySelector('.name').textContent = f.name;
       li.querySelector('.name').title = f.name;
-      li.querySelector('.size').textContent = mb(f.size);
+      li.querySelector('.size').textContent = mb(f.size) + (li.className ? ' · 50MB 초과' : '');
       const rm = li.querySelector('button');
       rm.setAttribute('aria-label', f.name + ' 빼기');
+      rm.disabled = busy;
       rm.onclick = () => { files.splice(i, 1); render(); };
       return li;
     }));
+    $('dropHint').textContent = link ? '파일 하나당 50MB, 최대 20개' : '여러 개 한 번에 선택할 수 있습니다';
+
     const total = files.reduce((s, f) => s + f.size, 0);
-    const over = total > MAX_TOTAL;
+    const why = problem();
     $('meter').hidden = !files.length;
-    $('meter').classList.toggle('over', over);
-    $('meterBar').style.width = Math.min(100, total / MAX_TOTAL * 100) + '%';
-    $('meterText').textContent = `${files.length}개 · ${mb(total)} / 28MB` + (over ? ' · 용량 초과' : '');
-    $('send').disabled = over;
+    $('meter').classList.toggle('over', !!why);
+    $('meterBar').style.width = (link ? (why ? 100 : 0) : Math.min(100, total / MAX_ATTACH * 100)) + '%';
+    $('meterBar').parentNode.hidden = link;
+    $('meterText').textContent = `${files.length}개 · ${mb(total)}` + (link ? '' : ' / 28MB') + (why ? ' · ' + why : '');
+    $('send').disabled = busy || !!why;
   }
 
   function add(newFiles) {
+    if (busy) return;
     for (const f of newFiles) {
       if (!files.some(x => x.name === f.name && x.size === f.size && x.lastModified === f.lastModified)) files.push(f);
     }
@@ -199,9 +269,21 @@
   drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
   drop.ondragleave = () => drop.classList.remove('over');
   drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); add(e.dataTransfer.files); };
-  // 영역 밖에 떨어뜨려도 브라우저가 파일을 열지 않게
   addEventListener('dragover', e => e.preventDefault());
   addEventListener('drop', e => e.preventDefault());
+
+  // ── 서버 호출 ──
+  async function api(path, body, extraHeaders = {}) {
+    const res = await fetch(path, {
+      method: 'POST',
+      headers: { ...authHeader(pw()), ...extraHeaders },
+      body,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401) { const e = new Error(''); e.auth = true; throw e; }
+    if (!res.ok) throw new Error(data.error || '요청에 실패했습니다.');
+    return data;
+  }
 
   const toBase64 = f => new Promise((ok, fail) => {
     const r = new FileReader();
@@ -210,47 +292,108 @@
     r.readAsDataURL(f);
   });
 
+  // 서명 URL 로 저장소에 직접 올림 (진행률 표시)
+  const upload = (url, f, bar) => new Promise((ok, fail) => {
+    const x = new XMLHttpRequest();
+    x.open('PUT', url);
+    x.setRequestHeader('Content-Type', f.type || 'application/octet-stream');
+    x.setRequestHeader('x-upsert', 'false');
+    x.upload.onprogress = e => { if (e.lengthComputable) bar.style.width = (e.loaded / e.total * 100) + '%'; };
+    x.onload = () => {
+      if (x.status >= 200 && x.status < 300) { bar.style.width = '100%'; ok(); }
+      else {
+        let msg = '';
+        try { msg = JSON.parse(x.responseText).message; } catch {}
+        fail(new Error(`${f.name} 올리기 실패${msg ? ': ' + msg : ''}`));
+      }
+    };
+    x.onerror = () => fail(new Error(`${f.name} 올리기 실패 (연결 오류)`));
+    x.send(f);
+  });
+
+  async function sendAttach(to, st) {
+    status(st, '파일을 준비하는 중…');
+    const attachments = [];
+    for (const f of files) attachments.push({ filename: f.name, content: await toBase64(f) });
+    status(st, '보내는 중… 파일이 크면 시간이 걸립니다.');
+    const meta = { to, subject: mail.subject.value, text: mail.text.value };
+    await api('/api/admin/send', JSON.stringify(meta) + '\n' + JSON.stringify(attachments), { 'Content-Type': 'text/plain; charset=utf-8' });
+  }
+
+  async function sendLink(to, st) {
+    status(st, '저장소를 준비하는 중…');
+    const json = { 'Content-Type': 'application/json' };
+    const share = await api('/api/admin/share/create', JSON.stringify({
+      files: files.map(f => ({ name: f.name, size: f.size, type: f.type })),
+    }), json);
+
+    const bars = [...list.querySelectorAll('.prog')];
+    for (let i = 0; i < files.length; i++) {
+      status(st, `파일 올리는 중… (${i + 1}/${files.length}) ${files[i].name}`);
+      await upload(share.uploads[i], files[i], bars[i]);
+    }
+
+    status(st, '보내는 중…');
+    const ch = channel();
+    return api('/api/admin/share/send', JSON.stringify({
+      id: share.id,
+      channel: ch,
+      to,
+      ...(ch === 'email'
+        ? { subject: mail.subject.value, text: mail.text.value }
+        : { name: mail.recipientName.value }),
+    }), json);
+  }
+
   // ── 보내기 ──
   mail.onsubmit = async e => {
     e.preventDefault();
     const st = $('mailStatus');
-    const to = mail.to.value.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
-    if (!files.length) return status(st, '보낼 파일을 하나 이상 넣어 주세요.', 'err');
-    const bad = to.find(a => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a));
-    if (bad) return status(st, `이메일 형식을 확인해 주세요: ${bad}`, 'err');
-    if (!confirm(`${to.join(', ')} 에게 파일 ${files.length}개를 보낼까요?`)) return;
+    $('result').hidden = true;
+    const ch = channel();
+    const to = (ch === 'email' ? mail.to.value : mail.phones.value).split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
 
-    const btn = $('send');
-    btn.disabled = true;
-    try {
-      status(st, '파일을 준비하는 중…');
-      const attachments = [];
-      for (const f of files) attachments.push({ filename: f.name, content: await toBase64(f) });
-
-      status(st, '보내는 중… 파일이 크면 시간이 걸립니다.');
-      const meta = { to, subject: mail.subject.value, text: mail.text.value };
-      const res = await fetch('/api/admin/send', {
-        method: 'POST',
-        headers: { ...authHeader(pw()), 'Content-Type': 'text/plain; charset=utf-8' },
-        body: JSON.stringify(meta) + '\n' + JSON.stringify(attachments),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.status === 401) {
-        sessionStorage.removeItem(KEY);
-        showMail(false);
-        status($('loginStatus'), '비밀번호가 바뀌었거나 만료되었습니다. 다시 로그인해 주세요.', 'err');
-        return;
-      }
-      if (!res.ok) throw new Error(data.error || '전송에 실패했습니다.');
-
-      status(st, `보냈습니다. (${to.join(', ')})`, 'ok');
-      files = [];
-      render();
-    } catch (err) {
-      status(st, err instanceof TypeError ? '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.' : err.message, 'err');
-    } finally {
-      btn.disabled = files.reduce((s, f) => s + f.size, 0) > MAX_TOTAL;
+    if (!to.length) return status(st, ch === 'email' ? '받는 사람 이메일을 입력해 주세요.' : '받는 사람 휴대폰 번호를 입력해 주세요.', 'err');
+    if (ch === 'email') {
+      const bad = to.find(a => !EMAIL.test(a));
+      if (bad) return status(st, `이메일 형식을 확인해 주세요: ${bad}`, 'err');
+      if (!mail.subject.value.trim()) return status(st, '제목을 입력해 주세요.', 'err');
+    } else {
+      const bad = to.find(p => !/^01\d{8,9}$/.test(p.replace(/\D/g, '')));
+      if (bad) return status(st, `휴대폰 번호를 확인해 주세요: ${bad}`, 'err');
     }
+    if (!files.length) return status(st, '보낼 파일을 하나 이상 넣어 주세요.', 'err');
+
+    const how = { email: useLink() ? '이메일(링크)' : '이메일(첨부)', kakao: '알림톡', naver: '네이버 톡톡' }[ch];
+    if (!confirm(`${to.join(', ')} 에게 ${how}으로 파일 ${files.length}개를 보낼까요?`)) return;
+
+    busy = true;
+    render();
+    try {
+      let result = {};
+      if (useLink()) result = await sendLink(to, st);
+      else await sendAttach(to, st);
+
+      const failed = result.failed?.length ? ` · 실패: ${result.failed.map(f => `${f.to} ${f.reason}`).join(', ')}` : '';
+      status(st, `보냈습니다. (${to.join(', ')})${failed}`, failed ? 'err' : 'ok');
+      if (result.link) {
+        $('resultLink').href = $('resultLink').textContent = result.link;
+        $('result').hidden = false;
+      }
+      files = [];
+    } catch (err) {
+      if (err.auth) expired();
+      else status(st, err instanceof TypeError ? '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.' : err.message, 'err');
+    } finally {
+      busy = false;
+      render();
+    }
+  };
+
+  $('copy').onclick = async () => {
+    await navigator.clipboard.writeText($('resultLink').href).catch(() => {});
+    $('copy').textContent = '복사됨';
+    setTimeout(() => { $('copy').textContent = '복사'; }, 1500);
   };
 </script>
 </body>
