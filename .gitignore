@@ -25,3 +25,6 @@ npm-debug.log*
 dist/
 build/
 node_modules/
+
+# Wrangler cache
+.wrangler/
